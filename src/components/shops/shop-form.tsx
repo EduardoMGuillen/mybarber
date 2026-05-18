@@ -36,6 +36,7 @@ export type ShopFormData = {
 
 type Props = {
   initial?: Partial<ShopFormData>;
+  shopId?: string;
   showOwnerFields?: boolean;
   showAdminOptions?: boolean;
   onSubmit: (data: ShopFormData) => Promise<void>;
@@ -44,6 +45,7 @@ type Props = {
 
 export function ShopForm({
   initial,
+  shopId,
   showOwnerFields,
   showAdminOptions,
   onSubmit,
@@ -111,9 +113,10 @@ export function ShopForm({
         <ImageUpload
           label="Logo de la barbería"
           kind="logo"
+          shopId={shopId}
           value={form.logoUrl}
           onChange={(url) => update("logoUrl", url)}
-          hint="JPG o PNG, máx. 2 MB. Aparece en tu landing y SEO."
+          hint="JPG o PNG, máx. 2 MB. Puedes subirlo antes de guardar el formulario."
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">

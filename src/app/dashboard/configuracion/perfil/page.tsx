@@ -39,6 +39,7 @@ export default async function PerfilPage() {
         </p>
       </div>
       <ProfileForm
+        shopId={shop.id}
         initial={{
           name: shop.name,
           slug: shop.slug,

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { requireDb } from "@/lib/db";
-import { shopStaff } from "@/lib/db/schema";
+import { shopStaff, shops } from "@/lib/db/schema";
 import { uploadPublicImage } from "@/lib/storage/blob";
 import { getShopForUser } from "@/lib/tenant";
 
@@ -22,6 +22,7 @@ export async function POST(req: Request) {
   const file = formData.get("file");
   const kind = formData.get("kind");
   const staffMemberId = formData.get("staffMemberId");
+  const shopIdParam = formData.get("shopId");
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "Archivo requerido" }, { status: 400 });
@@ -31,35 +32,50 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Tipo de subida inválido" }, { status: 400 });
   }
 
+  const role = session.user.role ?? "owner";
+
+  if (role !== "owner" && role !== "superadmin") {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
   try {
-    if (session.user.role === "superadmin" && kind === "logo") {
-      const shopId = formData.get("shopId");
-      if (typeof shopId !== "string") {
-        return NextResponse.json({ error: "shopId requerido" }, { status: 400 });
-      }
-      const url = await uploadPublicImage(file, `shops/${shopId}/logo`);
-      return NextResponse.json({ url });
-    }
+    const db = requireDb();
+    let shop =
+      role === "owner"
+        ? await getShopForUser(session.user.id, "owner")
+        : null;
 
-    if (session.user.role !== "owner") {
-      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
-    }
-
-    const shop = await getShopForUser(session.user.id, "owner");
-    if (!shop) {
-      return NextResponse.json({ error: "Sin barbería" }, { status: 400 });
+    if (role === "superadmin" && typeof shopIdParam === "string" && shopIdParam) {
+      const [byId] = await db
+        .select()
+        .from(shops)
+        .where(eq(shops.id, shopIdParam))
+        .limit(1);
+      shop = byId ?? null;
     }
 
     if (kind === "logo") {
-      const url = await uploadPublicImage(file, `shops/${shop.id}/logo`);
+      const path = shop
+        ? `shops/${shop.id}/logo`
+        : `drafts/${session.user.id}/logo`;
+      const url = await uploadPublicImage(file, path);
       return NextResponse.json({ url });
     }
 
-    if (typeof staffMemberId !== "string") {
-      return NextResponse.json({ error: "staffMemberId requerido" }, { status: 400 });
+    if (!shop) {
+      return NextResponse.json(
+        { error: "Crea tu barbería antes de subir fotos del equipo." },
+        { status: 400 },
+      );
     }
 
-    const db = requireDb();
+    if (typeof staffMemberId !== "string" || !staffMemberId) {
+      return NextResponse.json(
+        { error: "Guarda el barbero antes de subir su foto." },
+        { status: 400 },
+      );
+    }
+
     const [staffRow] = await db
       .select({ shopId: shopStaff.shopId })
       .from(shopStaff)

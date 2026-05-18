@@ -38,7 +38,7 @@ export function ImageUpload({
       if (kind === "staff" && staffMemberId) {
         body.append("staffMemberId", staffMemberId);
       }
-      if (kind === "logo" && shopId) {
+      if (shopId) {
         body.append("shopId", shopId);
       }
 
