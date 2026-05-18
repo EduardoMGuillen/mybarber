@@ -10,11 +10,13 @@ import {
   getSlotsForBooking,
 } from "@/lib/availability/queries";
 import { requireDb } from "@/lib/db";
+import { verifyAppointmentCancelToken } from "@/lib/appointments/cancel-token";
 import {
   insertAppointmentRow,
   tryLinkShopClient,
 } from "@/lib/clients/link";
-import { appointments, services, shopStaff } from "@/lib/db/schema";
+import { formatDateTime } from "@/lib/emails/layout";
+import { appointments, services, shopStaff, shops } from "@/lib/db/schema";
 import { sendBookingConfirmedEmail, sendBookingEmails } from "@/lib/emails/booking";
 import { sendPushToShopTeam } from "@/lib/push/server";
 import {
@@ -168,9 +170,9 @@ export async function createPublicAppointment(
 
   try {
     await sendPushToShopTeam(shop.id, shop.ownerUserId, {
-      title: "Nueva reserva",
+      title: "Nueva reserva pendiente",
       body: `${data.clientName} — ${service.name}`,
-      url: "/dashboard/reservas",
+      url: `/dashboard/reservas?highlight=${appointment.id}`,
     });
   } catch (err) {
     console.error("[booking] push failed", err);
@@ -211,9 +213,95 @@ export async function getPublicBookingConfirmation(slug: string, appointmentId: 
     shopName: shop.name,
     timezone: shop.timezone,
     slug: shop.slug,
-    ...row,
+    serviceName: row.serviceName,
+    staffName: row.staffName,
+    clientName: row.clientName,
+    clientPhone: row.clientPhone,
+    clientEmail: row.clientEmail,
     startAt: row.startAt.toISOString(),
+    status: String(row.status),
   };
+}
+
+export async function getAppointmentCancelPreview(slug: string, token: string) {
+  const appointmentId = verifyAppointmentCancelToken(token);
+  if (!appointmentId) return null;
+
+  const shop = await getShopBySlug(slug);
+  if (!shop) return null;
+
+  const db = requireDb();
+  const [row] = await db
+    .select({
+      id: appointments.id,
+      status: appointments.status,
+      startAt: appointments.startAt,
+      shopId: appointments.shopId,
+      serviceName: services.name,
+    })
+    .from(appointments)
+    .innerJoin(services, eq(services.id, appointments.serviceId))
+    .where(eq(appointments.id, appointmentId))
+    .limit(1);
+
+  if (!row || row.shopId !== shop.id) return null;
+  if (row.status !== "pending" && row.status !== "confirmed") return null;
+  if (row.startAt.getTime() <= Date.now()) return null;
+
+  return {
+    shopName: shop.name,
+    serviceName: row.serviceName,
+    when: formatDateTime(row.startAt, shop.timezone),
+  };
+}
+
+export async function cancelPublicAppointment(token: string) {
+  const appointmentId = verifyAppointmentCancelToken(token);
+  if (!appointmentId) {
+    throw new Error("Enlace de cancelación inválido o expirado");
+  }
+
+  const db = requireDb();
+  const [appt] = await db
+    .select({
+      id: appointments.id,
+      shopId: appointments.shopId,
+      status: appointments.status,
+      startAt: appointments.startAt,
+    })
+    .from(appointments)
+    .where(eq(appointments.id, appointmentId))
+    .limit(1);
+
+  if (!appt) throw new Error("Cita no encontrada");
+  if (appt.status !== "pending" && appt.status !== "confirmed") {
+    throw new Error("Esta cita ya no se puede cancelar");
+  }
+  if (appt.startAt.getTime() <= Date.now()) {
+    throw new Error("No puedes cancelar una cita que ya pasó");
+  }
+
+  await db
+    .update(appointments)
+    .set({
+      status: "cancelled",
+      cancellationReason: "Cancelada por el cliente",
+    })
+    .where(eq(appointments.id, appointmentId));
+
+  const [shopRow] = await db
+    .select({ slug: shops.slug })
+    .from(shops)
+    .where(eq(shops.id, appt.shopId))
+    .limit(1);
+
+  if (shopRow?.slug) {
+    revalidatePath(`/${shopRow.slug}`);
+    revalidatePath("/dashboard/reservas");
+    revalidatePath("/dashboard/calendario");
+  }
+
+  return { ok: true as const };
 }
 
 export async function createManualAppointment(
@@ -335,7 +423,12 @@ export async function approveAppointment(appointmentId: string) {
     try {
       await sendBookingConfirmedEmail({
         shop,
-        appointment: appt,
+        appointment: {
+          id: appt.id,
+          clientName: appt.clientName,
+          clientEmail: appt.clientEmail,
+          startAt: appt.startAt,
+        },
         serviceName: service.name,
         staffName: staff.displayName,
       });
@@ -347,12 +440,6 @@ export async function approveAppointment(appointmentId: string) {
   revalidatePath("/dashboard/reservas");
   revalidatePath("/dashboard/calendario");
   revalidatePath(`/${shop.slug}`);
-
-  await sendPushToShopTeam(shop.id, shop.ownerUserId, {
-    title: "Reserva confirmada",
-    body: `${appt.clientName} — cita aprobada`,
-    url: "/dashboard/reservas",
-  });
 
   return { ok: true };
 }

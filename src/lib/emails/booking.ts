@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { requireDb } from "@/lib/db";
 import { shopStaff, users, userPreferences } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/resend/client";
+import { buildAppointmentCancelUrl } from "@/lib/appointments/cancel-token";
 import { bookingClientConfirmedEmailHtml, bookingClientEmailHtml } from "@/lib/emails/templates/booking-client";
 import { bookingShopEmailHtml } from "@/lib/emails/templates/booking-shop";
 import type { ShopRow } from "@/lib/tenant";
@@ -34,7 +35,15 @@ async function getShopBookingNotifyRecipients(
     .limit(1);
 
   if (owner?.email) {
-    byEmail.set(owner.email, { email: owner.email, name: owner.name });
+    const [ownerPrefs] = await db
+      .select({ emailNewBooking: userPreferences.emailNewBooking })
+      .from(userPreferences)
+      .where(eq(userPreferences.userId, shop.ownerUserId))
+      .limit(1);
+
+    if (ownerPrefs?.emailNewBooking !== false) {
+      byEmail.set(owner.email, { email: owner.email, name: owner.name });
+    }
   }
 
   const [staff] = await db
@@ -85,6 +94,7 @@ export async function sendBookingEmails({
   }
 
   const address = shop.formattedAddress ?? shop.addressLine1 ?? null;
+  const cancelUrl = buildAppointmentCancelUrl(shop.slug, appointment.id);
 
   await sendEmail({
     to: appointment.clientEmail,
@@ -98,6 +108,7 @@ export async function sendBookingEmails({
       startAt: appointment.startAt,
       timezone: shop.timezone,
       shopAddress: address,
+      cancelUrl,
     }),
   });
 
@@ -133,11 +144,13 @@ export async function sendBookingConfirmedEmail({
   serviceName,
 }: {
   shop: ShopRow;
-  appointment: Pick<Appointment, "clientName" | "clientEmail" | "startAt">;
+  appointment: Pick<Appointment, "id" | "clientName" | "clientEmail" | "startAt">;
   staffName: string;
   serviceName: string;
 }) {
   if (!appointment.clientEmail) return;
+
+  const cancelUrl = buildAppointmentCancelUrl(shop.slug, appointment.id);
 
   await sendEmail({
     to: appointment.clientEmail,
@@ -150,6 +163,7 @@ export async function sendBookingConfirmedEmail({
       staffName,
       startAt: appointment.startAt,
       timezone: shop.timezone,
+      cancelUrl,
     }),
   });
 }

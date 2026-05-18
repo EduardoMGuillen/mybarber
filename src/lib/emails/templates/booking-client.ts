@@ -9,6 +9,7 @@ export function bookingClientEmailHtml(input: {
   startAt: Date;
   timezone: string;
   shopAddress?: string | null;
+  cancelUrl?: string | null;
 }) {
   const when = formatDateTime(input.startAt, input.timezone);
   const appUrl = getAppUrl();
@@ -30,7 +31,12 @@ export function bookingClientEmailHtml(input: {
     ],
     noticeHtml: `<strong style="color:#e8c547;">Pendiente de confirmación.</strong> El equipo revisará tu cita y te avisaremos por correo cuando quede confirmada. Guarda este mensaje como comprobante.`,
     cta: { label: "Ver barbería", href: shopUrl },
-    footerNote: "Si no hiciste esta reserva, contacta a la barbería o ignora este correo.",
+    secondaryCta: input.cancelUrl
+      ? { label: "Cancelar mi reserva", href: input.cancelUrl }
+      : undefined,
+    footerNote: input.cancelUrl
+      ? "Si no hiciste esta reserva, cancela con el enlace de arriba."
+      : "Si no hiciste esta reserva, contacta a la barbería.",
   });
 }
 
@@ -42,6 +48,7 @@ export function bookingClientConfirmedEmailHtml(input: {
   staffName: string;
   startAt: Date;
   timezone: string;
+  cancelUrl?: string | null;
 }) {
   const when = formatDateTime(input.startAt, input.timezone);
   const shopUrl = `${getAppUrl()}/${input.shopSlug}`;
@@ -56,7 +63,10 @@ export function bookingClientConfirmedEmailHtml(input: {
       { label: "Barbero", value: escapeHtml(input.staffName) },
       { label: "Fecha y hora", value: escapeHtml(when) },
     ],
-    noticeHtml: `Te esperamos puntual. Si necesitas cancelar, avisa a la barbería con anticipación.`,
+    noticeHtml: `Te esperamos puntual.`,
     cta: { label: "Ver barbería", href: shopUrl },
+    secondaryCta: input.cancelUrl
+      ? { label: "Cancelar mi cita", href: input.cancelUrl }
+      : undefined,
   });
 }

@@ -51,6 +51,7 @@ type EmailLayoutOptions = {
   bodyHtml?: string;
   noticeHtml?: string;
   cta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
   footerNote?: string;
 };
 
@@ -100,9 +101,16 @@ export function renderEmailLayout(options: EmailLayoutOptions): string {
       ? renderDetails(options.details)
       : "";
 
-  const ctaBlock = options.cta
-    ? renderButton(options.cta.label, options.cta.href)
-    : "";
+  const ctaBlock = [
+    options.cta ? renderButton(options.cta.label, options.cta.href) : "",
+    options.secondaryCta
+      ? `<p style="margin:12px 0 0;text-align:center;">
+          <a href="${escapeHtml(options.secondaryCta.href)}" target="_blank" style="font-size:14px;color:${BRAND.muted};text-decoration:underline;">
+            ${escapeHtml(options.secondaryCta.label)}
+          </a>
+        </p>`
+      : "",
+  ].join("");
 
   const noticeBlock = options.noticeHtml
     ? `<div style="margin-top:20px;padding:14px 16px;border-radius:10px;background:rgba(201,162,39,0.12);border:1px solid rgba(201,162,39,0.35);color:${BRAND.text};font-size:13px;line-height:1.55;">

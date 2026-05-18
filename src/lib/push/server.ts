@@ -44,6 +44,7 @@ export async function sendPushToShopTeam(
       userId: userPreferences.userId,
       pushEnabled: userPreferences.pushEnabled,
       pushSubscription: userPreferences.pushSubscription,
+      emailNewBooking: userPreferences.emailNewBooking,
     })
     .from(userPreferences)
     .where(inArray(userPreferences.userId, [...userIds]));
@@ -52,7 +53,12 @@ export async function sendPushToShopTeam(
 
   await Promise.allSettled(
     prefs
-      .filter((p) => p.pushEnabled && p.pushSubscription)
+      .filter(
+        (p) =>
+          p.pushEnabled &&
+          p.pushSubscription &&
+          p.emailNewBooking !== false,
+      )
       .map((p) =>
         webpush.sendNotification(
           p.pushSubscription as webpush.PushSubscription,
