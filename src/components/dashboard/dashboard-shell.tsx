@@ -20,6 +20,7 @@ const mainNav: NavItem[] = [
 
 const configNav: NavItem[] = [
   { href: "/dashboard/configuracion/perfil", label: "Perfil" },
+  { href: "/dashboard/configuracion/horario", label: "Horario" },
   { href: "/dashboard/configuracion/servicios", label: "Servicios" },
   { href: "/dashboard/configuracion/equipo", label: "Equipo" },
   { href: "/dashboard/configuracion/preferencias", label: "Preferencias" },

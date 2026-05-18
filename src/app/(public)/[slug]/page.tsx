@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { and, eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
+import { BrandLogo } from "@/components/brand/brand-logo";
+import { ShopLandingBackground } from "@/components/public/shop-landing-background";
 import { Button } from "@/components/ui/button";
 import { requireDb } from "@/lib/db";
 import {
@@ -91,53 +93,36 @@ export default async function ShopLandingPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="page-shell bg-brand-black">
-        <header className="border-b border-white/10">
-          <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-safe py-3 pt-safe">
-            <div className="flex items-center gap-3">
-              {shop.logoUrl && (
-                <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-white/10">
-                  <Image
-                    src={shop.logoUrl}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    sizes="40px"
-                    unoptimized
-                  />
-                </div>
-              )}
-              <h1 className="text-xl font-bold">{shop.name}</h1>
-            </div>
+      <div className="page-shell relative bg-transparent">
+        <ShopLandingBackground />
+
+        <header className="relative border-b border-white/10 bg-brand-black/60 backdrop-blur-md">
+          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-safe py-3 pt-safe">
+            <BrandLogo size="sm" href="/" showWordmark />
             <Button asChild size="sm">
               <Link href={`/${slug}/reservar`}>Reservar</Link>
             </Button>
           </div>
         </header>
 
-        <main className="mx-auto max-w-4xl space-y-16 px-4 py-12">
-          <section className="space-y-4 text-center">
+        <main className="relative mx-auto w-full max-w-3xl flex-1 space-y-16 px-4 py-12 text-center">
+          <section className="animate-fade-up space-y-5">
             {shop.logoUrl && (
-              <div className="relative mx-auto h-24 w-24 overflow-hidden rounded-2xl border border-brand-gold/30">
+              <div className="relative mx-auto h-28 w-28 overflow-hidden rounded-2xl border border-brand-gold/30 shadow-[0_0_40px_rgba(201,162,39,0.15)]">
                 <Image
                   src={shop.logoUrl}
                   alt={shop.name}
                   fill
                   className="object-cover"
-                  sizes="96px"
+                  sizes="112px"
                   unoptimized
                   priority
                 />
               </div>
             )}
-            <p className="text-sm font-medium uppercase tracking-widest text-brand-gold">
-              Barbería
-            </p>
-            <h2 className="text-3xl font-bold sm:text-4xl">{shop.name}</h2>
-            <p className="mx-auto max-w-2xl text-brand-text-muted">
-              {shop.description}
-            </p>
-            <div className="flex flex-wrap justify-center gap-3 pt-2">
+            <h1 className="text-3xl font-bold sm:text-4xl">{shop.name}</h1>
+            <p className="mx-auto max-w-xl text-brand-text-muted">{shop.description}</p>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <Button asChild size="lg">
                 <Link href={`/${slug}/reservar`}>Reservar cita</Link>
               </Button>
@@ -156,13 +141,13 @@ export default async function ShopLandingPage({ params }: Props) {
           </section>
 
           {svc.length > 0 && (
-            <section className="space-y-6">
-              <h3 className="text-xl font-semibold text-brand-gold">Servicios</h3>
+            <section className="animate-fade-up delay-1 mx-auto max-w-2xl space-y-6">
+              <h2 className="text-xl font-semibold text-brand-gold">Servicios</h2>
               <ul className="grid gap-3 sm:grid-cols-2">
                 {svc.map((s) => (
                   <li
                     key={s.id}
-                    className="rounded-xl border border-white/10 bg-brand-surface p-4"
+                    className="rounded-xl border border-white/10 bg-brand-surface/80 p-4 backdrop-blur-sm"
                   >
                     <p className="font-medium">{s.name}</p>
                     <p className="text-sm text-brand-text-muted">
@@ -176,13 +161,13 @@ export default async function ShopLandingPage({ params }: Props) {
           )}
 
           {team.length > 0 && (
-            <section className="space-y-6">
-              <h3 className="text-xl font-semibold text-brand-gold">Equipo</h3>
-              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <section className="animate-fade-up delay-2 mx-auto max-w-2xl space-y-6">
+              <h2 className="text-xl font-semibold text-brand-gold">Equipo</h2>
+              <div className="grid justify-items-center gap-4 sm:grid-cols-2">
                 {team.map((m) => (
                   <article
                     key={m.id}
-                    className="rounded-xl border border-white/10 bg-brand-surface p-4 text-center"
+                    className="w-full max-w-xs rounded-xl border border-white/10 bg-brand-surface/80 p-4 backdrop-blur-sm"
                   >
                     <div className="relative mx-auto mb-3 h-20 w-20 overflow-hidden rounded-full border border-white/10 bg-brand-black">
                       {m.photoUrl ? (
@@ -211,13 +196,13 @@ export default async function ShopLandingPage({ params }: Props) {
           )}
 
           {hours.length > 0 && (
-            <section className="space-y-6">
-              <h3 className="text-xl font-semibold text-brand-gold">Horarios</h3>
-              <ul className="rounded-xl border border-white/10 bg-brand-surface divide-y divide-white/10">
+            <section className="animate-fade-up delay-3 mx-auto max-w-md space-y-6">
+              <h2 className="text-xl font-semibold text-brand-gold">Horarios</h2>
+              <ul className="rounded-xl border border-white/10 bg-brand-surface/80 divide-y divide-white/10 backdrop-blur-sm text-left">
                 {hours.map((h) => (
                   <li
                     key={h.id}
-                    className="flex justify-between px-4 py-3 text-sm"
+                    className="flex justify-between gap-4 px-4 py-3 text-sm"
                   >
                     <span>{DAY_LABELS[h.dayOfWeek]}</span>
                     <span className="text-brand-text-muted">
@@ -232,11 +217,9 @@ export default async function ShopLandingPage({ params }: Props) {
           )}
 
           {mapSrc && (
-            <section className="space-y-4">
-              <h3 className="text-xl font-semibold text-brand-gold">Ubicación</h3>
-              <p className="text-sm text-brand-text-muted">
-                {shop.formattedAddress}
-              </p>
+            <section className="animate-fade-up delay-4 mx-auto max-w-2xl space-y-4">
+              <h2 className="text-xl font-semibold text-brand-gold">Ubicación</h2>
+              <p className="text-sm text-brand-text-muted">{shop.formattedAddress}</p>
               {directionsUrl && (
                 <Button asChild variant="outline" size="sm">
                   <a
@@ -261,7 +244,7 @@ export default async function ShopLandingPage({ params }: Props) {
           )}
         </main>
 
-        <footer className="border-t border-white/10 py-8 text-center text-xs text-brand-text-muted">
+        <footer className="relative border-t border-white/10 bg-brand-black/40 py-8 text-center text-xs text-brand-text-muted backdrop-blur-sm">
           Reservas con{" "}
           <Link href="/" className="text-brand-gold hover:underline">
             MiBarbería

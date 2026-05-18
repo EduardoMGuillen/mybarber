@@ -2,17 +2,20 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { BusinessHoursEditor } from "@/components/shops/business-hours-editor";
 import { ShopForm } from "@/components/shops/shop-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { addService } from "@/lib/actions/services";
 import { completeOnboarding } from "@/lib/actions/shops";
+import { createDefaultBusinessHours } from "@/lib/shops/business-hours";
 
 export function OnboardingSetup() {
   const router = useRouter();
   const [serviceName, setServiceName] = useState("Corte clásico");
   const [durationMinutes, setDurationMinutes] = useState("30");
   const [priceDisplay, setPriceDisplay] = useState("");
+  const [businessHours, setBusinessHours] = useState(createDefaultBusinessHours);
 
   return (
     <div className="space-y-8">
@@ -52,10 +55,12 @@ export function OnboardingSetup() {
         </div>
       </section>
 
+      <BusinessHoursEditor value={businessHours} onChange={setBusinessHours} />
+
       <ShopForm
         submitLabel="Guardar y abrir panel"
         onSubmit={async (data) => {
-          const shopResult = await completeOnboarding(data);
+          const shopResult = await completeOnboarding(data, businessHours);
           if (!shopResult.ok) {
             throw new Error(shopResult.error);
           }

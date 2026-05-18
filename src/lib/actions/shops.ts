@@ -13,7 +13,12 @@ import {
   userPreferences,
   users,
 } from "@/lib/db/schema";
+import { applyBusinessHours } from "@/lib/actions/business-hours";
 import { calculateProfileCompleteness } from "@/lib/profile/completeness";
+import {
+  createDefaultBusinessHours,
+  parseBusinessHoursInput,
+} from "@/lib/shops/business-hours";
 import { DEFAULT_BUSINESS_HOURS, getTrialEndsAt } from "@/lib/shops/defaults";
 import { slugify, validateSlug } from "@/lib/slug";
 import { DEFAULT_TIMEZONE } from "@/lib/constants";
@@ -289,6 +294,7 @@ export async function updateShopStatus(
 
 export async function completeOnboarding(
   input: unknown,
+  hoursInput?: unknown,
 ): Promise<ShopMutationResult> {
   const session = await auth();
   if (!session?.user?.id) {
@@ -297,6 +303,11 @@ export async function completeOnboarding(
 
   const parsed = parseShopFields(input);
   if (!parsed.ok) return parsed;
+
+  const hoursParsed = parseBusinessHoursInput(
+    hoursInput ?? createDefaultBusinessHours(),
+  );
+  if (!hoursParsed.ok) return hoursParsed;
 
   const data = parsed.data;
 
@@ -377,10 +388,6 @@ export async function completeOnboarding(
       }
       shopId = created.id;
 
-      await db.insert(businessHours).values(
-        DEFAULT_BUSINESS_HOURS.map((h) => ({ ...h, shopId })),
-      );
-
       await db.insert(shopStaff).values({
         shopId,
         userId: session.user.id,
@@ -389,8 +396,11 @@ export async function completeOnboarding(
       });
     }
 
+    await applyBusinessHours(shopId, hoursParsed.data, true);
+
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/configuracion/perfil");
+    revalidatePath("/dashboard/configuracion/horario");
     revalidatePath(`/${data.slug}`);
     return { ok: true, shopId, slug: data.slug };
   } catch (err) {
