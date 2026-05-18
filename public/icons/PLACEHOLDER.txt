@@ -1,0 +1,2 @@
+Add icon-192.png and icon-512.png here for PWA install prompts.
+Recommended: gold barber pole or scissors on #0a0a0a background.

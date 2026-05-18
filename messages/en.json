@@ -1,0 +1,23 @@
+{
+  "common": {
+    "appName": "MiBarbería",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "back": "Back"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "reservations": "Bookings",
+    "calendar": "Calendar",
+    "link": "My link",
+    "settings": "Settings",
+    "billing": "Billing"
+  },
+  "auth": {
+    "login": "Sign in",
+    "register": "Sign up",
+    "forgotPassword": "Forgot your password?"
+  }
+}

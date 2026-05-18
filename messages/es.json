@@ -1,0 +1,23 @@
+{
+  "common": {
+    "appName": "MiBarbería",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "loading": "Cargando…",
+    "error": "Algo salió mal",
+    "back": "Volver"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "reservations": "Reservas",
+    "calendar": "Calendario",
+    "link": "Mi enlace",
+    "settings": "Configuración",
+    "billing": "Facturación"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "forgotPassword": "¿Olvidaste tu contraseña?"
+  }
+}
