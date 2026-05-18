@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 const features = [
   {
     title: "Landing con SEO",
-    desc: "Tu página en mibarberia.dev/tu-barberia, lista para Google y redes.",
+    desc: "Tu página en mibarberia.xyz/tu-barberia, lista para Google y redes.",
     icon: "✦",
   },
   {

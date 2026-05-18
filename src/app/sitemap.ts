@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
 import { eq } from "drizzle-orm";
+import { DEFAULT_APP_URL } from "@/lib/constants";
 import { requireDb } from "@/lib/db";
 import { shops } from "@/lib/db/schema";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://mibarberia.dev";
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? DEFAULT_APP_URL;
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: base, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },

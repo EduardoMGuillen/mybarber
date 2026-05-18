@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { DEFAULT_RESEND_FROM } from "@/lib/constants";
 
 let resend: Resend | null = null;
 
@@ -20,7 +21,7 @@ export async function sendEmail({
 }) {
   const client = getResend();
   const from =
-    process.env.RESEND_FROM_EMAIL ?? "MiBarbería <noreply@mibarberia.dev>";
+    process.env.RESEND_FROM_EMAIL ?? DEFAULT_RESEND_FROM;
 
   if (!client) {
     console.log("[email:dev]", { to, subject });

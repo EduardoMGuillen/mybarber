@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { SUPPORT_EMAIL } from "@/lib/constants";
 
 export const metadata = { title: "Política de privacidad" };
 
@@ -28,8 +29,8 @@ export default function PrivacidadPage() {
           </p>
           <p>
             Puedes solicitar acceso o eliminación de tu cuenta escribiendo a{" "}
-            <a href="mailto:hola@mibarberia.dev" className="text-brand-gold">
-              hola@mibarberia.dev
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-brand-gold">
+              {SUPPORT_EMAIL}
             </a>
             .
           </p>

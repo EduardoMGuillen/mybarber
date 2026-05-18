@@ -1,5 +1,6 @@
 import webpush from "web-push";
 import { eq, inArray } from "drizzle-orm";
+import { DEFAULT_VAPID_SUBJECT } from "@/lib/constants";
 import { requireDb } from "@/lib/db";
 import { shopStaff, userPreferences } from "@/lib/db/schema";
 
@@ -12,7 +13,7 @@ type PushPayload = {
 function configureVapid() {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT ?? "mailto:noreply@mibarberia.dev";
+  const subject = process.env.VAPID_SUBJECT ?? DEFAULT_VAPID_SUBJECT;
   if (!publicKey || !privateKey) return false;
   webpush.setVapidDetails(subject, publicKey, privateKey);
   return true;

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SITE_HOST } from "@/lib/constants";
 import { slugify } from "@/lib/slug";
 import { LocationPicker } from "@/components/shops/location-picker";
 import { ImageUpload } from "@/components/ui/image-upload";
@@ -126,7 +127,7 @@ export function ShopForm({
           <div className="space-y-2">
             <Label htmlFor="slug">Enlace público</Label>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <span className="shrink-0 text-sm text-brand-text-muted">mibarberia.dev/</span>
+              <span className="shrink-0 text-sm text-brand-text-muted">{SITE_HOST}/</span>
               <Input id="slug" value={form.slug} onChange={(e) => update("slug", e.target.value.toLowerCase())} required className="min-w-0" />
             </div>
           </div>

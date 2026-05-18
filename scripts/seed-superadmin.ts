@@ -3,10 +3,11 @@ import { eq } from "drizzle-orm";
 import { requireDb } from "../src/lib/db";
 import { userPreferences, users } from "../src/lib/db/schema";
 import { hashPassword } from "../src/lib/auth/passwords";
+import { DEFAULT_SUPERADMIN_EMAIL } from "../src/lib/constants";
 
 async function main() {
   const email = (
-    process.env.SUPERADMIN_EMAIL ?? "superadmin@mibarberia.dev"
+    process.env.SUPERADMIN_EMAIL ?? DEFAULT_SUPERADMIN_EMAIL
   ).toLowerCase();
   const password = process.env.SUPERADMIN_PASSWORD;
 
