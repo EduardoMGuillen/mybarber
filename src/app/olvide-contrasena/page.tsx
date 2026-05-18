@@ -13,7 +13,8 @@ export default function OlvideContrasenaPage() {
           <div>
             <h1 className="text-2xl font-bold">Recuperar contraseña</h1>
             <p className="mt-1 text-sm text-brand-text-muted">
-              Te enviaremos un enlace si el correo está registrado.
+              Escribe tu correo y te enviaremos un enlace para elegir una nueva
+              contraseña.
             </p>
           </div>
         </div>

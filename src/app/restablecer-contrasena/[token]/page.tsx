@@ -19,7 +19,7 @@ export default async function RestablecerContrasenaPage({
           <div>
             <h1 className="text-2xl font-bold">Nueva contraseña</h1>
             <p className="mt-1 text-sm text-brand-text-muted">
-              Elige una contraseña segura de al menos 8 caracteres.
+              Mínimo 8 caracteres, una mayúscula y un número.
             </p>
           </div>
         </div>

@@ -72,9 +72,9 @@ export function LoginForm() {
             <Label htmlFor="password">Contraseña</Label>
             <Link
               href="/olvide-contrasena"
-              className="text-xs text-brand-gold hover:underline"
+              className="text-xs font-medium text-brand-gold hover:underline"
             >
-              ¿Olvidaste tu contraseña?
+              Olvidé mi contraseña
             </Link>
           </div>
           <Input
@@ -94,6 +94,14 @@ export function LoginForm() {
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Entrando…" : "Iniciar sesión"}
         </Button>
+        <p className="text-center text-sm text-brand-text-muted">
+          <Link
+            href="/olvide-contrasena"
+            className="text-brand-gold hover:underline"
+          >
+            Olvidé mi contraseña
+          </Link>
+        </p>
       </form>
     </div>
   );

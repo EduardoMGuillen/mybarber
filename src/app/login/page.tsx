@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { LoginForm } from "@/components/auth/login-form";
+import { LoginStatusBanner } from "@/components/auth/login-status-banner";
 
 export const metadata = {
   title: "Iniciar sesión",
@@ -21,9 +22,16 @@ export default function LoginPage() {
           </div>
         </div>
         <Suspense fallback={<p className="text-center text-sm">Cargando…</p>}>
+          <LoginStatusBanner />
+        </Suspense>
+        <Suspense fallback={<p className="text-center text-sm">Cargando…</p>}>
           <LoginForm />
         </Suspense>
         <p className="text-center text-sm text-brand-text-muted">
+          <Link href="/olvide-contrasena" className="text-brand-gold hover:underline">
+            Olvidé mi contraseña
+          </Link>
+          <span className="mx-2 text-white/20">·</span>
           ¿No tienes cuenta?{" "}
           <Link href="/registro" className="text-brand-gold hover:underline">
             Regístrate

@@ -39,11 +39,15 @@ export function ResetPasswordForm({ token }: { token: string }) {
         <Input
           id="password"
           type="password"
+          autoComplete="new-password"
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        <p className="text-xs text-brand-text-muted">
+          Mínimo 8 caracteres, una mayúscula y un número.
+        </p>
       </div>
       <div className="space-y-2">
         <Label htmlFor="confirm">Confirmar</Label>
