@@ -143,7 +143,7 @@ export function PasswordField({
               {strength.label}
             </span>
           </div>
-          <ul className="grid gap-1 text-xs text-brand-text-muted sm:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-1 text-xs text-brand-text-muted min-[400px]:grid-cols-3">
             {strength.checks.map((check) => (
               <li
                 key={check.id}

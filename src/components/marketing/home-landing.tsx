@@ -45,13 +45,13 @@ const steps = [
 
 export function HomeLanding() {
   return (
-    <div className="marketing-page flex min-h-full flex-col overflow-x-hidden">
+    <div className="page-shell marketing-page">
       <div className="hero-glow pointer-events-none fixed inset-0 -z-10" aria-hidden />
 
       <header className="sticky top-0 z-30 border-b border-white/10 bg-brand-black/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <BrandLogo size="md" showWordmark />
-          <nav className="flex items-center gap-2 sm:gap-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-safe py-3 pt-safe sm:px-4 sm:py-4">
+          <BrandLogo size="sm" href="/" showWordmark />
+          <nav className="flex shrink-0 items-center gap-1.5 sm:gap-4">
             <Link
               href="/precios"
               className="hidden text-sm text-brand-text-muted hover:text-brand-text sm:inline"
@@ -60,25 +60,25 @@ export function HomeLanding() {
             </Link>
             <Link
               href="/login"
-              className="text-sm text-brand-text-muted hover:text-brand-text"
+              className="hidden text-sm text-brand-text-muted hover:text-brand-text min-[420px]:inline"
             >
-              Iniciar sesión
+              Entrar
             </Link>
-            <Button asChild size="sm" className="sm:size-default">
-              <Link href="/registro">Empezar gratis</Link>
+            <Button asChild size="sm">
+              <Link href="/registro">Empezar</Link>
             </Button>
           </nav>
         </div>
       </header>
 
       <main>
-        <section className="mx-auto max-w-6xl px-4 pb-20 pt-16 sm:pt-24">
+        <section className="mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-4 sm:pb-20 sm:pt-24">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div className="animate-fade-up space-y-6 text-center lg:text-left">
               <p className="inline-block rounded-full border border-brand-gold/30 bg-brand-gold/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-brand-gold animate-fade-up delay-1">
                 Para barberías profesionales
               </p>
-              <h1 className="animate-fade-up delay-2 text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="animate-fade-up delay-2 text-3xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
                 Tu barbería online con{" "}
                 <span className="bg-gradient-to-r from-brand-gold-light to-brand-gold bg-clip-text text-transparent">
                   reservas en minutos
@@ -88,11 +88,11 @@ export function HomeLanding() {
                 Landing con SEO, enlace de reservas, varios barberos y panel PWA.
                 Sin complicaciones técnicas.
               </p>
-              <div className="animate-fade-up delay-4 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
-                <Button asChild size="lg" className="shadow-lg shadow-brand-gold/20">
+              <div className="animate-fade-up delay-4 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
+                <Button asChild size="lg" className="w-full shadow-lg shadow-brand-gold/20 sm:w-auto">
                   <Link href="/registro">Crear mi barbería — gratis</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
+                <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
                   <Link href="/precios">Ver precios</Link>
                 </Button>
               </div>
@@ -205,8 +205,8 @@ export function HomeLanding() {
         </section>
       </main>
 
-      <footer className="border-t border-white/10 py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-sm text-brand-text-muted sm:flex-row">
+      <footer className="border-t border-white/10 py-8 pb-safe sm:py-10">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-center text-sm text-brand-text-muted sm:flex-row sm:text-left">
           <span>© {new Date().getFullYear()} MiBarbería</span>
           <div className="flex gap-6">
             <Link href="/legal/terminos" className="hover:text-brand-text">

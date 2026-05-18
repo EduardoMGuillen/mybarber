@@ -56,9 +56,9 @@ export default async function ReservarPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-full bg-brand-black">
+    <div className="page-shell bg-brand-black">
       <header className="border-b border-white/10">
-        <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-4">
+        <div className="mx-auto flex max-w-lg items-center justify-between px-safe py-3 pt-safe">
           <Link
             href={`/${slug}`}
             className="text-sm text-brand-text-muted hover:text-brand-gold"
@@ -67,7 +67,7 @@ export default async function ReservarPage({ params }: Props) {
           </Link>
         </div>
       </header>
-      <main className="mx-auto max-w-lg px-4 py-8">
+      <main className="mx-auto max-w-lg px-4 py-6 pb-safe sm:py-8">
         <h1 className="mb-6 text-2xl font-bold">Reservar cita</h1>
         <BookingWizard
           slug={slug}

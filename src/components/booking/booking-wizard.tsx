@@ -290,7 +290,7 @@ export function BookingWizard({
                   No hay horarios este día. Prueba otra fecha.
                 </p>
               ) : (
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2 min-[380px]:grid-cols-3 sm:grid-cols-4">
                   {slots.map((slot) => (
                     <button
                       key={slot.startAt}
@@ -365,13 +365,13 @@ export function BookingWizard({
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       {step !== "client" && (
-        <div className="flex gap-3">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row">
           {step !== "service" && (
-            <Button type="button" variant="outline" onClick={goBack}>
+            <Button type="button" variant="outline" onClick={goBack} className="w-full sm:w-auto">
               Atrás
             </Button>
           )}
-          <Button type="button" onClick={goNext} className="flex-1">
+          <Button type="button" onClick={goNext} className="w-full flex-1 sm:w-auto">
             Continuar
           </Button>
         </div>

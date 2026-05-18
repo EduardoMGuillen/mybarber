@@ -51,7 +51,7 @@ export default function RegistroPage() {
   }
 
   return (
-    <div className="flex min-h-full flex-col items-center justify-center px-4 py-12">
+    <div className="flex min-h-dvh flex-col items-center justify-center px-4 py-8 pb-safe pt-safe sm:py-12">
       <div className="w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-brand-surface p-8 shadow-xl shadow-black/40">
         <div className="flex flex-col items-center gap-4 text-center">
           <BrandLogo size="md" href="/" />

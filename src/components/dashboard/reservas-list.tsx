@@ -98,11 +98,12 @@ export function ReservasList({
                   {STATUS_LABELS[appt.status] ?? appt.status}
                 </span>
               </div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
                 {appt.status === "pending" && (
                   <>
                     <Button
                       size="sm"
+                      className="w-full sm:w-auto"
                       disabled={pending}
                       onClick={() => run(() => approveAppointment(appt.id))}
                     >
@@ -111,6 +112,7 @@ export function ReservasList({
                     <Button
                       size="sm"
                       variant="outline"
+                      className="w-full sm:w-auto"
                       disabled={pending}
                       onClick={() => run(() => rejectAppointment(appt.id))}
                     >
@@ -118,7 +120,7 @@ export function ReservasList({
                     </Button>
                     {canReassign && staff.length > 1 && (
                       <select
-                        className="rounded-lg border border-white/10 bg-brand-black px-2 py-1.5 text-sm"
+                        className="w-full rounded-lg border border-white/10 bg-brand-black px-2 py-2.5 text-sm sm:w-auto sm:py-1.5"
                         defaultValue=""
                         disabled={pending}
                         onChange={(e) => {
@@ -154,6 +156,7 @@ export function ReservasList({
                     <Button
                       size="sm"
                       variant="outline"
+                      className="w-full sm:w-auto"
                       disabled={pending}
                       onClick={() =>
                         run(() => updateAppointmentStatus(appt.id, "no_show"))
@@ -164,6 +167,7 @@ export function ReservasList({
                     <Button
                       size="sm"
                       variant="outline"
+                      className="w-full sm:w-auto"
                       disabled={pending}
                       onClick={() =>
                         run(() => updateAppointmentStatus(appt.id, "cancelled"))

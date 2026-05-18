@@ -18,7 +18,7 @@ export function OnboardingSetup() {
     <div className="space-y-8">
       <section className="rounded-xl border border-brand-gold/20 bg-brand-gold/5 p-6 space-y-4">
         <h2 className="text-lg font-semibold text-brand-gold">Servicio principal</h2>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="serviceName">Nombre</Label>
             <Input

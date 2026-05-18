@@ -6,7 +6,9 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "MiBarbería",
     description: "Reservas y panel para barberías",
     start_url: "/dashboard",
+    scope: "/",
     display: "standalone",
+    orientation: "portrait",
     background_color: "#0a0a0a",
     theme_color: "#c9a227",
     icons: [

@@ -91,9 +91,9 @@ export default async function ShopLandingPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="min-h-full bg-brand-black">
+      <div className="page-shell bg-brand-black">
         <header className="border-b border-white/10">
-          <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4">
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-safe py-3 pt-safe">
             <div className="flex items-center gap-3">
               {shop.logoUrl && (
                 <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-white/10">

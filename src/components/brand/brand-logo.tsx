@@ -18,9 +18,9 @@ const sizes = {
 };
 
 const wordmarkSize = {
-  sm: "text-base font-bold tracking-tight",
-  md: "text-lg font-bold tracking-tight",
-  lg: "text-xl font-bold tracking-tight",
+  sm: "text-sm font-bold tracking-tight sm:text-base",
+  md: "text-base font-bold tracking-tight sm:text-lg",
+  lg: "text-lg font-bold tracking-tight sm:text-xl",
 };
 
 export function BrandLogo({
@@ -41,7 +41,14 @@ export function BrandLogo({
         priority
       />
       {showWordmark && (
-        <span className={cn("text-brand-gold", wordmarkSize[size])}>MiBarbería</span>
+        <span
+          className={cn(
+            "max-w-[8rem] truncate text-brand-gold sm:max-w-none",
+            wordmarkSize[size],
+          )}
+        >
+          MiBarbería
+        </span>
       )}
     </>
   );

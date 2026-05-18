@@ -125,9 +125,9 @@ export function ShopForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="slug">Enlace público</Label>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-brand-text-muted">mibarberia.dev/</span>
-              <Input id="slug" value={form.slug} onChange={(e) => update("slug", e.target.value.toLowerCase())} required />
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <span className="shrink-0 text-sm text-brand-text-muted">mibarberia.dev/</span>
+              <Input id="slug" value={form.slug} onChange={(e) => update("slug", e.target.value.toLowerCase())} required className="min-w-0" />
             </div>
           </div>
           <div className="space-y-2 sm:col-span-2">
