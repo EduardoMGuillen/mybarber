@@ -7,6 +7,8 @@ type BrandLogoProps = {
   className?: string;
   href?: string;
   size?: "sm" | "md" | "lg";
+  /** Muestra "MiBarbería" en dorado junto al icono */
+  showWordmark?: boolean;
 };
 
 const sizes = {
@@ -15,26 +17,47 @@ const sizes = {
   lg: { width: 56, height: 56, className: "h-14 w-14 object-contain" },
 };
 
-export function BrandLogo({ className, href = "/", size = "md" }: BrandLogoProps) {
+const wordmarkSize = {
+  sm: "text-base font-bold tracking-tight",
+  md: "text-lg font-bold tracking-tight",
+  lg: "text-xl font-bold tracking-tight",
+};
+
+export function BrandLogo({
+  className,
+  href = "/",
+  size = "md",
+  showWordmark = false,
+}: BrandLogoProps) {
   const s = sizes[size];
-  const img = (
-    <Image
-      src={BRAND_LOGO_SRC}
-      alt="MiBarbería"
-      width={s.width}
-      height={s.height}
-      className={cn(s.className, className)}
-      priority
-    />
+  const content = (
+    <>
+      <Image
+        src={BRAND_LOGO_SRC}
+        alt=""
+        width={s.width}
+        height={s.height}
+        className={cn(s.className, className)}
+        priority
+      />
+      {showWordmark && (
+        <span className={cn("text-brand-gold", wordmarkSize[size])}>MiBarbería</span>
+      )}
+    </>
+  );
+
+  const wrapClass = cn(
+    "inline-flex shrink-0 items-center gap-2",
+    showWordmark && "min-w-0",
   );
 
   if (href) {
     return (
-      <Link href={href} className="inline-flex shrink-0">
-        {img}
+      <Link href={href} className={wrapClass} aria-label="MiBarbería">
+        {content}
       </Link>
     );
   }
 
-  return img;
+  return <span className={wrapClass}>{content}</span>;
 }

@@ -79,7 +79,7 @@ export function DashboardShell({
 
   const sidebar = (onNavigate?: () => void) => (
     <>
-      <BrandLogo size="sm" href="/dashboard" />
+      <BrandLogo size="sm" href="/dashboard" showWordmark />
       <nav className="mt-8 flex flex-1 flex-col gap-6 overflow-y-auto">
         <div>
           <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-brand-text-muted">
@@ -124,7 +124,7 @@ export function DashboardShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-white/10 bg-brand-surface px-4 py-3 md:hidden">
-          <BrandLogo size="sm" href="/dashboard" />
+          <BrandLogo size="sm" href="/dashboard" showWordmark />
           <Button
             type="button"
             variant="outline"

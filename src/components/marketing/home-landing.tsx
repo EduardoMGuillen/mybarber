@@ -50,7 +50,7 @@ export function HomeLanding() {
 
       <header className="sticky top-0 z-30 border-b border-white/10 bg-brand-black/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <BrandLogo size="md" />
+          <BrandLogo size="md" showWordmark />
           <nav className="flex items-center gap-2 sm:gap-4">
             <Link
               href="/precios"
