@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,13 +40,21 @@ export function LoginForm() {
     router.refresh();
   }
 
-  async function handleGoogle() {
-    setLoading(true);
-    await signIn("google", { callbackUrl });
-  }
-
   return (
     <div className="space-y-6">
+      <GoogleAuthButton callbackUrl={callbackUrl} disabled={loading} />
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-white/10" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-brand-surface px-2 text-brand-text-muted">
+            o con correo
+          </span>
+        </div>
+      </div>
+
       <form onSubmit={handleCredentials} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Correo</Label>
@@ -86,27 +95,6 @@ export function LoginForm() {
           {loading ? "Entrando…" : "Iniciar sesión"}
         </Button>
       </form>
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-white/10" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-brand-surface px-2 text-brand-text-muted">
-            o continúa con
-          </span>
-        </div>
-      </div>
-
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        disabled={loading}
-        onClick={handleGoogle}
-      >
-        Google
-      </Button>
     </div>
   );
 }

@@ -34,3 +34,82 @@ body {
   color: var(--foreground);
   font-family: var(--font-dm-sans), system-ui, sans-serif;
 }
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-card {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes hero-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s ease forwards;
+  opacity: 0;
+}
+
+.animate-fade-up.delay-1 {
+  animation-delay: 0.1s;
+}
+.animate-fade-up.delay-2 {
+  animation-delay: 0.2s;
+}
+.animate-fade-up.delay-3 {
+  animation-delay: 0.35s;
+}
+.animate-fade-up.delay-4 {
+  animation-delay: 0.45s;
+}
+.animate-fade-up.delay-5 {
+  animation-delay: 0.55s;
+}
+
+.hero-glow {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201, 162, 39, 0.25), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(30, 77, 140, 0.12), transparent),
+    radial-gradient(ellipse 50% 30% at 0% 80%, rgba(196, 30, 58, 0.08), transparent);
+  animation: hero-pulse 8s ease-in-out infinite;
+}
+
+.landing-card-float {
+  animation: float-card 5s ease-in-out infinite;
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(201, 162, 39, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .landing-card-float,
+  .hero-glow {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

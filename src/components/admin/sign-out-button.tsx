@@ -9,7 +9,7 @@ export function SignOutButton() {
       type="button"
       variant="ghost"
       size="sm"
-      onClick={() => signOut({ callbackUrl: "/login" })}
+      onClick={() => void signOut({ callbackUrl: "/", redirect: true })}
     >
       Cerrar sesión
     </Button>

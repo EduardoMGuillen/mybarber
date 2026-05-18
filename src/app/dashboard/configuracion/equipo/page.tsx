@@ -13,7 +13,7 @@ export default async function EquipoPage() {
   if (!session?.user?.id || session.user.role !== "owner") redirect("/dashboard");
 
   const shop = await getShopForUser(session.user.id, "owner");
-  if (!shop) redirect("/onboarding");
+  if (!shop) redirect("/dashboard/configuracion/perfil");
 
   const db = requireDb();
   const team = await db

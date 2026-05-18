@@ -1,8 +1,8 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { listServicesForShop } from "@/lib/actions/services";
 import { getShopForUser } from "@/lib/tenant";
-import { ConfigNav } from "@/components/dashboard/config-nav";
 import { ServicesManager } from "@/components/dashboard/services-manager";
 
 export const metadata = { title: "Servicios" };
@@ -18,9 +18,14 @@ export default async function ServiciosPage() {
 
   if (!shop) {
     return (
-      <div>
-        <ConfigNav current="/dashboard/configuracion/servicios" />
-        <p className="text-brand-text-muted">Configura tu barbería primero.</p>
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Servicios</h1>
+        <p className="text-brand-text-muted">
+          <Link href="/dashboard/configuracion/perfil" className="text-brand-gold hover:underline">
+            Configura tu barbería
+          </Link>{" "}
+          primero.
+        </p>
       </div>
     );
   }
@@ -28,9 +33,13 @@ export default async function ServiciosPage() {
   const services = await listServicesForShop(shop.id);
 
   return (
-    <div>
-      <ConfigNav current="/dashboard/configuracion/servicios" />
-      <h1 className="mb-6 text-2xl font-bold">Servicios</h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Servicios</h1>
+        <p className="mt-1 text-sm text-brand-text-muted">
+          Precios y duración que ven tus clientes al reservar.
+        </p>
+      </div>
       <ServicesManager services={services} />
     </div>
   );

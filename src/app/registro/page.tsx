@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,7 +37,7 @@ export default function RegistroPage() {
         return;
       }
 
-      router.push("/onboarding");
+      router.push("/dashboard/configuracion/perfil");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al registrar");
@@ -47,7 +48,7 @@ export default function RegistroPage() {
 
   return (
     <div className="flex min-h-full flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-brand-surface p-8">
+      <div className="w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-brand-surface p-8 shadow-xl shadow-black/40">
         <div className="flex flex-col items-center gap-4 text-center">
           <BrandLogo size="md" href="/" />
           <div>
@@ -55,6 +56,23 @@ export default function RegistroPage() {
             <p className="mt-1 text-sm text-brand-text-muted">
               7 días gratis · sin tarjeta
             </p>
+          </div>
+        </div>
+
+        <GoogleAuthButton
+          callbackUrl="/dashboard/configuracion/perfil"
+          label="Registrarse con Google"
+          disabled={loading}
+        />
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-white/10" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-brand-surface px-2 text-brand-text-muted">
+              o con correo
+            </span>
           </div>
         </div>
 
@@ -100,7 +118,7 @@ export default function RegistroPage() {
             </p>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Creando cuenta…" : "Crear cuenta"}
+            {loading ? "Creando cuenta…" : "Crear cuenta con correo"}
           </Button>
         </form>
 

@@ -25,7 +25,7 @@ export default auth((req) => {
     }
   }
 
-  if (pathname === "/login" && session) {
+  if ((pathname === "/login" || pathname === "/registro") && session) {
     if (role === "superadmin") {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
