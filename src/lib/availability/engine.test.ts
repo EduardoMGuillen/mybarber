@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { getDayOfWeekInTimezone } from "./dates";
 import { getAvailableSlots, pickStaffForAny } from "./engine";
 
 describe("availability engine", () => {
+  it("treats 2026-05-18 as Monday in Honduras (not Sunday UTC)", () => {
+    expect(getDayOfWeekInTimezone("2026-05-18", "America/Tegucigalpa")).toBe(1);
+  });
+
   const staffA = {
     staffMemberId: "a",
     sortOrder: 0,

@@ -247,3 +247,38 @@ body.mobile-menu-open {
     animation: none;
   }
 }
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .booking-ticket,
+  .booking-ticket * {
+    visibility: visible;
+  }
+
+  .booking-ticket {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .booking-ticket .text-brand-gold {
+    color: #8b7318 !important;
+  }
+
+  .booking-ticket .text-brand-text-muted {
+    color: #444 !important;
+  }
+}

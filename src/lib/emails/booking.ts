@@ -29,8 +29,11 @@ export async function sendBookingEmails({
     timeZone: shop.timezone,
   });
 
-  if (appointment.clientEmail) {
-    await sendEmail({
+  if (!appointment.clientEmail) {
+    throw new Error("Correo del cliente requerido para enviar la confirmación");
+  }
+
+  await sendEmail({
       to: appointment.clientEmail,
       subject: `Solicitud recibida — ${shop.name}`,
       html: `
@@ -40,11 +43,11 @@ export async function sendBookingEmails({
           <p><strong>Servicio:</strong> ${serviceName}<br/>
           <strong>Barbero:</strong> ${staffName}<br/>
           <strong>Fecha:</strong> ${when}</p>
-          <p style="color:#a3a3a3">Tu cita queda <strong>pendiente de confirmación</strong>. Te avisaremos por correo.</p>
+          <p style="color:#a3a3a3">Tu cita queda <strong>pendiente de confirmación</strong>. Te avisaremos por correo cuando el barbero la apruebe.</p>
+          <p style="color:#a3a3a3;margin-top:16px">Guarda este correo como comprobante de tu reserva.</p>
         </div>
       `,
-    });
-  }
+  });
 
   const db = requireDb();
   const [staff] = await db

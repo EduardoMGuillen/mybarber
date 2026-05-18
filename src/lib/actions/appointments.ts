@@ -33,7 +33,10 @@ const bookingSchema = z.object({
   startAt: z.string(),
   clientName: z.string().min(2),
   clientPhone: z.string().min(8),
-  clientEmail: z.string().email().optional().or(z.literal("")),
+  clientEmail: z
+    .string()
+    .min(1, "El correo es obligatorio")
+    .email("Correo electrónico inválido"),
 });
 
 const manualBookingSchema = z.object({
@@ -136,7 +139,7 @@ export async function createPublicAppointment(
       source: "online",
       clientName: data.clientName,
       clientPhone: data.clientPhone,
-      clientEmail: data.clientEmail || null,
+      clientEmail: data.clientEmail.trim().toLowerCase(),
       startAt,
       endAt,
     })
@@ -159,6 +162,41 @@ export async function createPublicAppointment(
   revalidatePath(`/${shop.slug}`);
   revalidatePath("/dashboard/reservas");
   return { id: appointment!.id };
+}
+
+export async function getPublicBookingConfirmation(slug: string, appointmentId: string) {
+  const shop = await getShopBySlug(slug);
+  if (!shop || !isShopPubliclyAccessible(shop)) return null;
+
+  const db = requireDb();
+  const [row] = await db
+    .select({
+      id: appointments.id,
+      clientName: appointments.clientName,
+      clientPhone: appointments.clientPhone,
+      clientEmail: appointments.clientEmail,
+      startAt: appointments.startAt,
+      status: appointments.status,
+      serviceName: services.name,
+      staffName: shopStaff.displayName,
+    })
+    .from(appointments)
+    .innerJoin(services, eq(services.id, appointments.serviceId))
+    .innerJoin(shopStaff, eq(shopStaff.id, appointments.staffMemberId))
+    .where(
+      and(eq(appointments.id, appointmentId), eq(appointments.shopId, shop.id)),
+    )
+    .limit(1);
+
+  if (!row || !row.clientEmail) return null;
+
+  return {
+    shopName: shop.name,
+    timezone: shop.timezone,
+    slug: shop.slug,
+    ...row,
+    startAt: row.startAt.toISOString(),
+  };
 }
 
 export async function createManualAppointment(

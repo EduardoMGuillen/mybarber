@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { FooterExtrasProvider } from "@/components/layout/footer-extras";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { AuthSessionProvider } from "@/components/providers/session-provider";
 import "./globals.css";
@@ -52,8 +53,10 @@ export default async function RootLayout({
       <body className="flex min-h-dvh flex-col bg-brand-black text-brand-text antialiased">
         <NextIntlClientProvider messages={messages}>
           <AuthSessionProvider>
-            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-            <SiteFooter />
+            <FooterExtrasProvider>
+              <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+              <SiteFooter />
+            </FooterExtrasProvider>
           </AuthSessionProvider>
         </NextIntlClientProvider>
       </body>

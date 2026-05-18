@@ -1,26 +1,53 @@
 import Link from "next/link";
-import { getShopBySlug } from "@/lib/tenant";
+import { notFound } from "next/navigation";
+import { BookingConfirmationCard } from "@/components/booking/booking-confirmation-card";
 import { Button } from "@/components/ui/button";
+import { getPublicBookingConfirmation } from "@/lib/actions/appointments";
 
-export default async function ReservaExitoPage({
-  params,
-}: {
+type Props = {
   params: Promise<{ slug: string }>;
-}) {
+  searchParams: Promise<{ id?: string }>;
+};
+
+export default async function ReservaExitoPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const shop = await getShopBySlug(slug);
+  const { id } = await searchParams;
+
+  const booking = id ? await getPublicBookingConfirmation(slug, id) : null;
+
+  if (id && !booking) notFound();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
-      <h1 className="text-2xl font-bold text-brand-gold">Solicitud enviada</h1>
-      <p className="mt-4 max-w-md text-brand-text-muted">
-        Tu reserva en <strong>{shop?.name ?? slug}</strong> está{" "}
-        <strong>pendiente de confirmación</strong>. Te avisaremos por correo cuando el
-        barbero la apruebe.
+    <div className="mx-auto max-w-lg px-4 py-12 pb-safe text-center">
+      <h1 className="text-2xl font-bold text-brand-gold">¡Solicitud enviada!</h1>
+      <p className="mt-3 text-sm text-brand-text-muted">
+        {booking
+          ? "Revisa tu correo, toma captura de tu reserva y guarda el comprobante abajo."
+          : "Tu reserva está pendiente de confirmación. Te avisaremos por correo."}
       </p>
-      <Button asChild className="mt-8">
+
+      {booking ? (
+        <div className="mt-8">
+          <BookingConfirmationCard
+            data={{
+              shopName: booking.shopName,
+              serviceName: booking.serviceName,
+              staffName: booking.staffName,
+              clientName: booking.clientName,
+              clientPhone: booking.clientPhone,
+              clientEmail: booking.clientEmail!,
+              startAt: booking.startAt,
+              timezone: booking.timezone,
+              status: booking.status,
+            }}
+          />
+        </div>
+      ) : null}
+
+      <Button asChild className="mt-8 print:hidden">
         <Link href={`/${slug}`}>Volver a la barbería</Link>
       </Button>
     </div>
   );
 }
+

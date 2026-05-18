@@ -1,12 +1,10 @@
+import { addMinutes, isAfter, parseISO, startOfDay } from "date-fns";
+import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import {
-  addMinutes,
-  format,
-  isAfter,
-  isBefore,
-  parseISO,
-  startOfDay,
-} from "date-fns";
-import { toZonedTime, fromZonedTime } from "date-fns-tz";
+  dateAtNoonInTimezone,
+  formatDateInTimezone,
+  getDayOfWeekInTimezone,
+} from "@/lib/availability/dates";
 
 export type Slot = {
   startAt: string;
@@ -42,8 +40,7 @@ export type AvailabilityInput = {
 };
 
 function parseTimeOnDate(dateStr: string, time: string, tz: string): Date {
-  const local = parseISO(`${dateStr}T${time}:00`);
-  return fromZonedTime(local, tz);
+  return fromZonedTime(parseISO(`${dateStr}T${time}:00`), tz);
 }
 
 function getDayHours(
@@ -125,7 +122,8 @@ export function getAvailableSlots(input: AvailabilityInput): Slot[] {
 
   const now = new Date();
   const minNotice = addMinutes(now, minNoticeHours * 60);
-  const maxDate = addMinutes(startOfDay(now), maxDaysAhead * 24 * 60);
+  const nowInTz = toZonedTime(now, tz);
+  const maxDate = addMinutes(startOfDay(nowInTz), maxDaysAhead * 24 * 60);
 
   const schedules =
     preference === "specific" && staffMemberId
@@ -134,12 +132,12 @@ export function getAvailableSlots(input: AvailabilityInput): Slot[] {
 
   const slotMap = new Map<string, Slot>();
 
-  let cursorDate = parseISO(dateFrom);
-  const endDate = parseISO(dateTo);
+  let cursorDate = dateAtNoonInTimezone(dateFrom, tz);
+  const endDate = dateAtNoonInTimezone(dateTo, tz);
 
   while (cursorDate <= endDate) {
-    const dateStr = format(cursorDate, "yyyy-MM-dd");
-    const dayOfWeek = toZonedTime(cursorDate, tz).getDay();
+    const dateStr = formatDateInTimezone(cursorDate, tz);
+    const dayOfWeek = getDayOfWeekInTimezone(dateStr, tz);
     const shopExc = shopExceptions.find((e) => e.date === dateStr);
     const shopClosed = shopExc?.isClosed ?? false;
 

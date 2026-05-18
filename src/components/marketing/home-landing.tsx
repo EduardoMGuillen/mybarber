@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { MarketingFooterExtras } from "@/components/marketing/marketing-footer-extras";
 import { BRAND_LOGO_SRC } from "@/lib/brand";
 import { Button } from "@/components/ui/button";
 
@@ -46,6 +47,7 @@ const steps = [
 export function HomeLanding() {
   return (
     <div className="page-shell marketing-page">
+      <MarketingFooterExtras />
       <div className="hero-glow pointer-events-none fixed inset-0 -z-10" aria-hidden />
 
       <header className="sticky top-0 z-30 border-b border-white/10 bg-brand-black/80 backdrop-blur-md">
@@ -205,22 +207,6 @@ export function HomeLanding() {
         </section>
       </main>
 
-      <footer className="border-t border-white/10 py-8 pb-safe sm:py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-center text-sm text-brand-text-muted sm:flex-row sm:text-left">
-          <span>© {new Date().getFullYear()} MiBarbería</span>
-          <div className="flex gap-6">
-            <Link href="/legal/terminos" className="hover:text-brand-text">
-              Términos
-            </Link>
-            <Link href="/legal/privacidad" className="hover:text-brand-text">
-              Privacidad
-            </Link>
-            <Link href="/login" className="hover:text-brand-gold">
-              Acceder al panel
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

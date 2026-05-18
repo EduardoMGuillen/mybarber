@@ -73,6 +73,7 @@ export default async function ReservarPage({ params }: Props) {
           slug={slug}
           shopName={shop.name}
           timezone={shop.timezone}
+          maxDaysAhead={shop.maxDaysAhead}
           services={svc}
           staff={team}
         />

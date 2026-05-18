@@ -4,6 +4,8 @@ import { and, eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { ShopLandingBackground } from "@/components/public/shop-landing-background";
+import { ShopLandingFooterExtras } from "@/components/public/shop-landing-footer-extras";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { requireDb } from "@/lib/db";
 import {
@@ -94,6 +96,7 @@ export default async function ShopLandingPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="page-shell relative bg-transparent">
+        <ShopLandingFooterExtras />
         <ShopLandingBackground />
 
         <header className="relative border-b border-white/10 bg-brand-black/60 backdrop-blur-md">
@@ -143,11 +146,18 @@ export default async function ShopLandingPage({ params }: Props) {
           {svc.length > 0 && (
             <section className="animate-fade-up delay-1 mx-auto max-w-2xl space-y-6">
               <h2 className="text-xl font-semibold text-brand-gold">Servicios</h2>
-              <ul className="grid gap-3 sm:grid-cols-2">
+              <ul
+                className={cn(
+                  "grid gap-3",
+                  svc.length === 1
+                    ? "mx-auto max-w-sm grid-cols-1"
+                    : "sm:grid-cols-2",
+                )}
+              >
                 {svc.map((s) => (
                   <li
                     key={s.id}
-                    className="rounded-xl border border-white/10 bg-brand-surface/80 p-4 backdrop-blur-sm"
+                    className="w-full rounded-xl border border-white/10 bg-brand-surface/80 p-4 backdrop-blur-sm"
                   >
                     <p className="font-medium">{s.name}</p>
                     <p className="text-sm text-brand-text-muted">
@@ -161,9 +171,23 @@ export default async function ShopLandingPage({ params }: Props) {
           )}
 
           {team.length > 0 && (
-            <section className="animate-fade-up delay-2 mx-auto max-w-2xl space-y-6">
+            <section
+              className={cn(
+                "animate-fade-up delay-2 mx-auto space-y-6",
+                team.length >= 3 ? "max-w-3xl" : "max-w-2xl",
+              )}
+            >
               <h2 className="text-xl font-semibold text-brand-gold">Equipo</h2>
-              <div className="grid justify-items-center gap-4 sm:grid-cols-2">
+              <div
+                className={cn(
+                  "grid justify-items-center gap-4",
+                  team.length === 1
+                    ? "mx-auto max-w-xs grid-cols-1"
+                    : team.length === 2
+                      ? "mx-auto max-w-2xl grid-cols-1 sm:grid-cols-2"
+                      : "mx-auto max-w-3xl grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
+                )}
+              >
                 {team.map((m) => (
                   <article
                     key={m.id}
@@ -244,12 +268,6 @@ export default async function ShopLandingPage({ params }: Props) {
           )}
         </main>
 
-        <footer className="relative border-t border-white/10 bg-brand-black/40 py-8 text-center text-xs text-brand-text-muted backdrop-blur-sm">
-          Reservas con{" "}
-          <Link href="/" className="text-brand-gold hover:underline">
-            MiBarbería
-          </Link>
-        </footer>
       </div>
     </>
   );

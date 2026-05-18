@@ -1,6 +1,7 @@
 "use client";
 
-import { format, parseISO } from "date-fns";
+import { addDays } from "date-fns";
+import { parseISO } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,6 +31,7 @@ type Props = {
   slug: string;
   shopName: string;
   timezone: string;
+  maxDaysAhead: number;
   services: BookingService[];
   staff: BookingStaff[];
 };
@@ -42,6 +44,7 @@ export function BookingWizard({
   slug,
   shopName,
   timezone,
+  maxDaysAhead,
   services,
   staff,
 }: Props) {
@@ -69,12 +72,15 @@ export function BookingWizard({
 
   const selectedService = services.find((s) => s.id === serviceId);
 
-  const minDate = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
-  const maxDate = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 30);
-    return format(d, "yyyy-MM-dd");
-  }, []);
+  const minDate = useMemo(
+    () => formatInTimeZone(new Date(), timezone, "yyyy-MM-dd"),
+    [timezone],
+  );
+  const maxDate = useMemo(
+    () =>
+      formatInTimeZone(addDays(new Date(), maxDaysAhead), timezone, "yyyy-MM-dd"),
+    [timezone, maxDaysAhead],
+  );
 
   useEffect(() => {
     if (step !== "datetime" || !serviceId || !date) return;
@@ -139,12 +145,16 @@ export function BookingWizard({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedSlot || !serviceId) return;
+    if (!clientEmail.trim()) {
+      setError("El correo es obligatorio para enviarte la confirmación");
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      await createPublicAppointment({
+      const result = await createPublicAppointment({
         slug,
         serviceId,
         staffMemberId:
@@ -153,9 +163,9 @@ export function BookingWizard({
         startAt: selectedSlot.startAt,
         clientName,
         clientPhone,
-        clientEmail,
+        clientEmail: clientEmail.trim(),
       });
-      router.push(`/${slug}/reservar/exito`);
+      router.push(`/${slug}/reservar/exito?id=${result.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo reservar");
     } finally {
@@ -348,13 +358,19 @@ export function BookingWizard({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="clientEmail">Email (opcional)</Label>
+            <Label htmlFor="clientEmail">Correo electrónico</Label>
             <Input
               id="clientEmail"
               type="email"
               value={clientEmail}
               onChange={(e) => setClientEmail(e.target.value)}
+              required
+              autoComplete="email"
+              placeholder="tu@correo.com"
             />
+            <p className="text-xs text-brand-text-muted">
+              Te enviaremos los datos de tu reserva a este correo.
+            </p>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Reservando…" : "Confirmar reserva"}
