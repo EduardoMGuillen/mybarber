@@ -21,7 +21,7 @@ export default async function DashboardPage() {
         <h2 className="font-semibold text-brand-gold">Próximo paso</h2>
         <p className="mt-2 text-sm text-brand-text-muted">
           Configura tu barbería: ubicación, servicios y horarios para activar SEO y
-          mapa en Google.
+          ubicación en el mapa.
         </p>
         <Button asChild className="mt-4">
           <Link href="/onboarding">Continuar configuración</Link>

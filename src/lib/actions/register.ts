@@ -5,6 +5,9 @@ import { z } from "zod";
 import { hashPassword } from "@/lib/auth/passwords";
 import { requireDb } from "@/lib/db";
 import { userPreferences, users } from "@/lib/db/schema";
+import { createRateLimiter, enforceRateLimit } from "@/lib/ratelimit";
+
+const registerLimiter = createRateLimiter(5, "1 m");
 
 const schema = z.object({
   name: z.string().min(2),
@@ -17,6 +20,7 @@ const schema = z.object({
 });
 
 export async function registerOwner(input: z.infer<typeof schema>) {
+  await enforceRateLimit(registerLimiter, "register");
   const data = schema.parse(input);
   const db = requireDb();
   const email = data.email.toLowerCase();

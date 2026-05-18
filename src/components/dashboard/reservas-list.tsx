@@ -7,6 +7,7 @@ import {
   approveAppointment,
   rejectAppointment,
   reassignAppointmentStaff,
+  updateAppointmentStatus,
 } from "@/lib/actions/appointments";
 
 export type ReservaRow = {
@@ -21,6 +22,14 @@ export type ReservaRow = {
 };
 
 type StaffOption = { id: string; displayName: string };
+
+const STATUS_LABELS: Record<string, string> = {
+  pending: "Pendiente",
+  confirmed: "Confirmada",
+  cancelled: "Cancelada",
+  completed: "Completada",
+  no_show: "No asistió",
+};
 
 export function ReservasList({
   appointments,
@@ -81,13 +90,15 @@ export function ReservasList({
                   className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs ${
                     appt.status === "pending"
                       ? "bg-amber-500/20 text-amber-300"
-                      : "bg-green-500/20 text-green-300"
+                      : appt.status === "confirmed"
+                        ? "bg-green-500/20 text-green-300"
+                        : "bg-white/10 text-brand-text-muted"
                   }`}
                 >
-                  {appt.status === "pending" ? "Pendiente" : "Confirmada"}
+                  {STATUS_LABELS[appt.status] ?? appt.status}
                 </span>
               </div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                 {appt.status === "pending" && (
                   <>
                     <Button
@@ -127,6 +138,39 @@ export function ReservasList({
                           ))}
                       </select>
                     )}
+                  </>
+                )}
+                {appt.status === "confirmed" && (
+                  <>
+                    <Button
+                      size="sm"
+                      disabled={pending}
+                      onClick={() =>
+                        run(() => updateAppointmentStatus(appt.id, "completed"))
+                      }
+                    >
+                      Completar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={pending}
+                      onClick={() =>
+                        run(() => updateAppointmentStatus(appt.id, "no_show"))
+                      }
+                    >
+                      No asistió
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={pending}
+                      onClick={() =>
+                        run(() => updateAppointmentStatus(appt.id, "cancelled"))
+                      }
+                    >
+                      Cancelar
+                    </Button>
                   </>
                 )}
               </div>

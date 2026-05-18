@@ -13,6 +13,7 @@ export function calculateProfileCompleteness(shop: Partial<ShopRow>): number {
     !!shop.state,
     !!shop.lat && !!shop.lng,
     !!shop.formattedAddress || !!shop.googlePlaceId,
+    !!shop.logoUrl,
   ];
   score = Math.round((checks.filter(Boolean).length / checks.length) * 100);
   return score;

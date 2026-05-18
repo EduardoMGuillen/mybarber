@@ -9,6 +9,7 @@ import {
 } from "@/lib/db/schema";
 import { getShopForUser } from "@/lib/tenant";
 import { ReservasList } from "@/components/dashboard/reservas-list";
+import { ManualBookingForm } from "@/components/dashboard/manual-booking-form";
 
 export const metadata = { title: "Reservas" };
 
@@ -56,14 +57,26 @@ export default async function ReservasPage() {
     .from(shopStaff)
     .where(and(eq(shopStaff.shopId, shop.id), eq(shopStaff.active, true)));
 
+  const serviceRows = await db
+    .select({
+      id: services.id,
+      name: services.name,
+      durationMinutes: services.durationMinutes,
+    })
+    .from(services)
+    .where(and(eq(services.shopId, shop.id), eq(services.active, true)));
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold">Reservas</h1>
         <p className="text-brand-text-muted">
-          Pendientes y confirmadas — aprueba o rechaza solicitudes.
+          Aprueba solicitudes, crea citas manuales y gestiona el estado.
         </p>
       </div>
+
+      <ManualBookingForm services={serviceRows} staff={staff} />
+
       <ReservasList
         appointments={rows.map((r) => ({
           ...r,

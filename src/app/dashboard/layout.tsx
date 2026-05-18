@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { canAccessDashboard } from "@/lib/auth/guards";
 
 export default async function DashboardLayout({
@@ -23,16 +24,11 @@ export default async function DashboardLayout({
       <aside className="hidden w-56 shrink-0 border-r border-white/10 bg-brand-surface md:block">
         <div className="flex h-full flex-col p-4">
           <BrandLogo size="sm" href="/dashboard" />
-          <nav className="mt-8 flex flex-col gap-1 text-sm">
-            <NavLink href="/dashboard">Hoy</NavLink>
-            <NavLink href="/dashboard/reservas">Reservas</NavLink>
-            <NavLink href="/dashboard/calendario">Calendario</NavLink>
-            <NavLink href="/dashboard/enlace">Mi enlace</NavLink>
-            <NavLink href="/dashboard/configuracion/perfil">Perfil</NavLink>
-            <NavLink href="/dashboard/configuracion/servicios">Servicios</NavLink>
-            <NavLink href="/dashboard/configuracion/equipo">Equipo</NavLink>
-            <NavLink href="/dashboard/configuracion/preferencias">Preferencias</NavLink>
-            <NavLink href="/dashboard/facturacion">Facturación</NavLink>
+          <DashboardNav />
+          <nav className="mt-4 flex flex-col gap-1 border-t border-white/10 pt-4 text-sm">
+            <SubNavLink href="/dashboard/configuracion/servicios">Servicios</SubNavLink>
+            <SubNavLink href="/dashboard/configuracion/equipo">Equipo</SubNavLink>
+            <SubNavLink href="/dashboard/configuracion/preferencias">Preferencias</SubNavLink>
           </nav>
         </div>
       </aside>
@@ -46,7 +42,7 @@ export default async function DashboardLayout({
   );
 }
 
-function NavLink({
+function SubNavLink({
   href,
   children,
 }: {

@@ -6,6 +6,9 @@ import { hashPassword } from "@/lib/auth/passwords";
 import { requireDb } from "@/lib/db";
 import { passwordResetTokens, users } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/resend/client";
+import { createRateLimiter, enforceRateLimit } from "@/lib/ratelimit";
+
+const resetLimiter = createRateLimiter(5, "1 m");
 
 const TOKEN_BYTES = 32;
 const EXPIRY_HOURS = 2;
@@ -15,6 +18,7 @@ function hashToken(token: string) {
 }
 
 export async function requestPasswordReset(email: string) {
+  await enforceRateLimit(resetLimiter, "password-reset");
   const normalized = email.trim().toLowerCase();
   if (!normalized) return { ok: true };
 

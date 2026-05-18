@@ -52,6 +52,7 @@ export default async function PerfilPage() {
           lng: shop.lng ?? "",
           timezone: shop.timezone,
           instagramUrl: shop.instagramUrl ?? "",
+          logoUrl: shop.logoUrl ?? "",
         }}
       />
     </div>

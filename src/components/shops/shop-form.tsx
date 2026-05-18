@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { slugify } from "@/lib/slug";
+import { LocationPicker } from "@/components/shops/location-picker";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 export type ShopFormData = {
   name: string;
@@ -24,6 +26,7 @@ export type ShopFormData = {
   lng: string;
   timezone: string;
   instagramUrl?: string;
+  logoUrl?: string;
   ownerName?: string;
   ownerEmail?: string;
   ownerPassword?: string;
@@ -64,6 +67,7 @@ export function ShopForm({
     lng: initial?.lng ?? "",
     timezone: initial?.timezone ?? "America/Tegucigalpa",
     instagramUrl: initial?.instagramUrl ?? "",
+    logoUrl: initial?.logoUrl ?? "",
     ownerName: initial?.ownerName ?? "",
     ownerEmail: initial?.ownerEmail ?? "",
     ownerPassword: initial?.ownerPassword ?? "",
@@ -85,6 +89,10 @@ export function ShopForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!form.lat?.trim() || !form.lng?.trim()) {
+      setError("Localiza la dirección en el mapa antes de guardar.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -100,6 +108,13 @@ export function ShopForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-brand-gold">Negocio</h2>
+        <ImageUpload
+          label="Logo de la barbería"
+          kind="logo"
+          value={form.logoUrl}
+          onChange={(url) => update("logoUrl", url)}
+          hint="JPG o PNG, máx. 2 MB. Aparece en tu landing y SEO."
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="name">Nombre de la barbería</Label>
@@ -126,42 +141,7 @@ export function ShopForm({
         </div>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-brand-gold">Ubicación</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="formattedAddress">Dirección completa</Label>
-            <Input
-              id="formattedAddress"
-              value={form.formattedAddress}
-              onChange={(e) => {
-                update("formattedAddress", e.target.value);
-                if (!form.addressLine1) update("addressLine1", e.target.value);
-              }}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="city">Ciudad</Label>
-            <Input id="city" value={form.city} onChange={(e) => update("city", e.target.value)} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="state">Departamento</Label>
-            <Input id="state" value={form.state} onChange={(e) => update("state", e.target.value)} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lat">Latitud</Label>
-            <Input id="lat" value={form.lat} onChange={(e) => update("lat", e.target.value)} required placeholder="14.0723" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lng">Longitud</Label>
-            <Input id="lng" value={form.lng} onChange={(e) => update("lng", e.target.value)} required placeholder="-87.1921" />
-          </div>
-        </div>
-        <p className="text-xs text-brand-text-muted">
-          Usa Google Maps para obtener lat/lng. Autocomplete con API key en Sprint 2+.
-        </p>
-      </section>
+      <LocationPicker form={form} onUpdate={update} />
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-brand-gold">Contacto</h2>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { and, eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
@@ -11,6 +12,10 @@ import {
 import { buildLocalBusinessJsonLd } from "@/lib/seo/local-business-jsonld";
 import { generateShopMetadata } from "@/lib/seo/generate-metadata";
 import { getShopBySlug, isShopPubliclyAccessible } from "@/lib/tenant";
+import {
+  buildDirectionsUrl,
+  buildOsmEmbedUrl,
+} from "@/lib/maps/embed-url";
 
 const DAY_LABELS = [
   "Domingo",
@@ -74,8 +79,10 @@ export default async function ShopLandingPage({ params }: Props) {
   );
 
   const mapSrc =
+    shop.lat && shop.lng ? buildOsmEmbedUrl(String(shop.lat), String(shop.lng)) : "";
+  const directionsUrl =
     shop.lat && shop.lng
-      ? `https://www.google.com/maps?q=${shop.lat},${shop.lng}&z=15&output=embed`
+      ? buildDirectionsUrl(String(shop.lat), String(shop.lng))
       : null;
 
   return (
@@ -86,8 +93,22 @@ export default async function ShopLandingPage({ params }: Props) {
       />
       <div className="min-h-full bg-brand-black">
         <header className="border-b border-white/10">
-          <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-            <h1 className="text-xl font-bold">{shop.name}</h1>
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4">
+            <div className="flex items-center gap-3">
+              {shop.logoUrl && (
+                <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-white/10">
+                  <Image
+                    src={shop.logoUrl}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                    unoptimized
+                  />
+                </div>
+              )}
+              <h1 className="text-xl font-bold">{shop.name}</h1>
+            </div>
             <Button asChild size="sm">
               <Link href={`/${slug}/reservar`}>Reservar</Link>
             </Button>
@@ -96,6 +117,19 @@ export default async function ShopLandingPage({ params }: Props) {
 
         <main className="mx-auto max-w-4xl space-y-16 px-4 py-12">
           <section className="space-y-4 text-center">
+            {shop.logoUrl && (
+              <div className="relative mx-auto h-24 w-24 overflow-hidden rounded-2xl border border-brand-gold/30">
+                <Image
+                  src={shop.logoUrl}
+                  alt={shop.name}
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                  unoptimized
+                  priority
+                />
+              </div>
+            )}
             <p className="text-sm font-medium uppercase tracking-widest text-brand-gold">
               Barbería
             </p>
@@ -148,8 +182,24 @@ export default async function ShopLandingPage({ params }: Props) {
                 {team.map((m) => (
                   <article
                     key={m.id}
-                    className="rounded-xl border border-white/10 bg-brand-surface p-4"
+                    className="rounded-xl border border-white/10 bg-brand-surface p-4 text-center"
                   >
+                    <div className="relative mx-auto mb-3 h-20 w-20 overflow-hidden rounded-full border border-white/10 bg-brand-black">
+                      {m.photoUrl ? (
+                        <Image
+                          src={m.photoUrl}
+                          alt={m.displayName}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-2xl font-bold text-brand-gold">
+                          {m.displayName.charAt(0)}
+                        </div>
+                      )}
+                    </div>
                     <p className="font-medium">{m.displayName}</p>
                     {m.bio && (
                       <p className="mt-1 text-sm text-brand-text-muted">{m.bio}</p>
@@ -187,6 +237,17 @@ export default async function ShopLandingPage({ params }: Props) {
               <p className="text-sm text-brand-text-muted">
                 {shop.formattedAddress}
               </p>
+              {directionsUrl && (
+                <Button asChild variant="outline" size="sm">
+                  <a
+                    href={directionsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Cómo llegar
+                  </a>
+                </Button>
+              )}
               <div className="aspect-video overflow-hidden rounded-xl border border-white/10">
                 <iframe
                   title={`Mapa de ${shop.name}`}
