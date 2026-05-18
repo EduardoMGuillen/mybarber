@@ -48,9 +48,15 @@ const shopFieldsSchema = z.object({
     .url("Logo: URL inválida")
     .optional()
     .or(z.literal("")),
-  ownerName: z.string().min(2).optional(),
-  ownerEmail: z.string().email().optional(),
-  ownerPassword: z.string().min(8).optional(),
+  ownerName: z
+    .string()
+    .min(2, "Nombre del dueño: mínimo 2 caracteres")
+    .optional(),
+  ownerEmail: z.string().email("Correo del dueño inválido").optional(),
+  ownerPassword: z
+    .string()
+    .min(8, "Contraseña del dueño: mínimo 8 caracteres")
+    .optional(),
   billingExempt: z.boolean().optional(),
   status: z.enum(["trial", "active"]).optional(),
 });
@@ -58,6 +64,39 @@ const shopFieldsSchema = z.object({
 export type ShopMutationResult =
   | { ok: true; shopId: string; slug: string }
   | { ok: false; error: string };
+
+const OPTIONAL_STRING_KEYS = [
+  "ownerName",
+  "ownerEmail",
+  "ownerPassword",
+  "addressLine2",
+  "postalCode",
+  "googlePlaceId",
+] as const;
+
+function blankToUndefined(value: unknown): unknown {
+  if (typeof value === "string" && !value.trim()) return undefined;
+  return value;
+}
+
+const SHOP_FIELD_LABELS: Record<string, string> = {
+  name: "Nombre de la barbería",
+  slug: "Enlace público",
+  description: "Descripción",
+  phone: "Teléfono",
+  whatsappNumber: "WhatsApp",
+  addressLine1: "Dirección",
+  city: "Ciudad",
+  state: "Departamento",
+  formattedAddress: "Ubicación",
+  lat: "Ubicación en el mapa",
+  lng: "Ubicación en el mapa",
+  instagramUrl: "Instagram",
+  logoUrl: "Logo",
+  ownerName: "Nombre del dueño",
+  ownerEmail: "Correo del dueño",
+  ownerPassword: "Contraseña del dueño",
+};
 
 function normalizeShopInput(input: Record<string, unknown>) {
   const instagram = input.instagramUrl;
@@ -72,11 +111,17 @@ function normalizeShopInput(input: Record<string, unknown>) {
         : `https://${trimmed}`;
   }
 
-  return {
+  const normalized: Record<string, unknown> = {
     ...input,
     instagramUrl,
     logoUrl: typeof logo === "string" ? logo.trim() : "",
   };
+
+  for (const key of OPTIONAL_STRING_KEYS) {
+    normalized[key] = blankToUndefined(normalized[key]);
+  }
+
+  return normalized;
 }
 
 function parseShopFields(
@@ -91,9 +136,22 @@ function parseShopFields(
   );
   const parsed = shopFieldsSchema.safeParse(normalized);
   if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    const fieldKey = issue?.path[0];
+    const field =
+      typeof fieldKey === "string" ? SHOP_FIELD_LABELS[fieldKey] : undefined;
+    const message = issue?.message ?? "Revisa los datos del formulario";
+    const isGenericZod =
+      message.startsWith("Too small") || message.startsWith("Too big");
+
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Revisa los datos del formulario",
+      error:
+        field && isGenericZod
+          ? `${field}: valor demasiado corto o incompleto`
+          : field
+            ? `${field}: ${message}`
+            : message,
     };
   }
   const slugError = validateSlug(parsed.data.slug);
