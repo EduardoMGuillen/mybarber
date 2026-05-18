@@ -8,6 +8,13 @@
       "when": 1779071236641,
       "tag": "0000_robust_night_thrasher",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779200000000,
+      "tag": "0001_clients",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,7 @@ import { parsePassword } from "@/lib/auth/password-policy";
 import { hashPassword } from "@/lib/auth/passwords";
 import { requireDb } from "@/lib/db";
 import { passwordResetTokens, users } from "@/lib/db/schema";
+import { passwordResetEmailHtml } from "@/lib/emails/templates/password-reset";
 import { sendEmail } from "@/lib/resend/client";
 import { createRateLimiter, enforceRateLimit } from "@/lib/ratelimit";
 
@@ -86,25 +87,15 @@ export async function requestPasswordReset(
       ? "Crear contraseña — MiBarbería"
       : "Restablecer contraseña — MiBarbería";
 
-    const intro = isNewPassword
-      ? "Recibimos una solicitud para crear una contraseña en tu cuenta (entras con Google). El enlace expira en"
-      : "Recibimos una solicitud para restablecer tu contraseña. El enlace expira en";
-
-    const cta = isNewPassword ? "Crear contraseña" : "Restablecer contraseña";
-
     await sendEmail({
       to: normalized,
       subject,
-      html: `
-      <div style="font-family:sans-serif;background:#0a0a0a;color:#f5f5f5;padding:24px">
-        <h1 style="color:#c9a227">${cta}</h1>
-        <p>Hola${user.name ? ` ${user.name}` : ""},</p>
-        <p>${intro} ${EXPIRY_HOURS} horas.</p>
-        <p><a href="${link}" style="color:#c9a227;font-weight:bold">${cta}</a></p>
-        <p style="word-break:break-all;font-size:12px;color:#a3a3a3">${link}</p>
-        <p style="color:#a3a3a3;font-size:12px">Si no solicitaste esto, ignora este correo.</p>
-      </div>
-    `,
+      html: passwordResetEmailHtml({
+        userName: user.name,
+        link,
+        expiryHours: EXPIRY_HOURS,
+        isNewPassword,
+      }),
     });
 
     if (!process.env.RESEND_API_KEY) {

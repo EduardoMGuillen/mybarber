@@ -10,8 +10,9 @@ import {
   getSlotsForBooking,
 } from "@/lib/availability/queries";
 import { requireDb } from "@/lib/db";
+import { upsertShopClient } from "@/lib/clients/upsert";
 import { appointments, services, shopStaff } from "@/lib/db/schema";
-import { sendBookingEmails } from "@/lib/emails/booking";
+import { sendBookingConfirmedEmail, sendBookingEmails } from "@/lib/emails/booking";
 import { sendPushToShopTeam } from "@/lib/push/server";
 import {
   createRateLimiter,
@@ -128,18 +129,26 @@ export async function createPublicAppointment(
   const endAt = new Date(slot.endAt);
 
   const db = requireDb();
+  const clientEmail = data.clientEmail.trim().toLowerCase();
+  const clientId = await upsertShopClient(db, shop.id, {
+    name: data.clientName,
+    phone: data.clientPhone,
+    email: clientEmail,
+  });
+
   const [appointment] = await db
     .insert(appointments)
     .values({
       shopId: shop.id,
+      clientId,
       serviceId: data.serviceId,
       staffMemberId,
       staffPreference: data.preference,
       status: "pending",
       source: "online",
-      clientName: data.clientName,
-      clientPhone: data.clientPhone,
-      clientEmail: data.clientEmail.trim().toLowerCase(),
+      clientName: data.clientName.trim(),
+      clientPhone: data.clientPhone.trim(),
+      clientEmail,
       startAt,
       endAt,
     })
@@ -257,18 +266,26 @@ export async function createManualAppointment(
     throw new Error("Ese barbero ya tiene una cita en ese horario.");
   }
 
+  const clientEmail = data.clientEmail?.trim().toLowerCase() || null;
+  const clientId = await upsertShopClient(db, shop.id, {
+    name: data.clientName,
+    phone: data.clientPhone,
+    email: clientEmail,
+  });
+
   const [appointment] = await db
     .insert(appointments)
     .values({
       shopId: shop.id,
+      clientId,
       serviceId: data.serviceId,
       staffMemberId: data.staffMemberId,
       staffPreference: "specific",
       status: data.status,
       source: "manual",
-      clientName: data.clientName,
-      clientPhone: data.clientPhone,
-      clientEmail: data.clientEmail || null,
+      clientName: data.clientName.trim(),
+      clientPhone: data.clientPhone.trim(),
+      clientEmail,
       notes: data.notes || null,
       startAt,
       endAt,
@@ -296,6 +313,31 @@ export async function approveAppointment(appointmentId: string) {
       approvedByUserId: session.user.id,
     })
     .where(eq(appointments.id, appointmentId));
+
+  const [service] = await db
+    .select({ name: services.name })
+    .from(services)
+    .where(eq(services.id, appt.serviceId))
+    .limit(1);
+
+  const [staff] = await db
+    .select({ displayName: shopStaff.displayName })
+    .from(shopStaff)
+    .where(eq(shopStaff.id, appt.staffMemberId))
+    .limit(1);
+
+  if (service && staff) {
+    try {
+      await sendBookingConfirmedEmail({
+        shop,
+        appointment: appt,
+        serviceName: service.name,
+        staffName: staff.displayName,
+      });
+    } catch (err) {
+      console.error("[approveAppointment] confirmation email failed", err);
+    }
+  }
 
   revalidatePath("/dashboard/reservas");
   revalidatePath("/dashboard/calendario");

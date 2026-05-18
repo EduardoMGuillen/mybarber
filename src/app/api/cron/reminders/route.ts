@@ -2,7 +2,8 @@ import { and, eq, gte, isNull, lte } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { verifyCronSecret } from "@/lib/cron/verify";
 import { requireDb } from "@/lib/db";
-import { appointments, services, shops } from "@/lib/db/schema";
+import { appointments, services, shopStaff, shops } from "@/lib/db/schema";
+import { appointmentReminderEmailHtml } from "@/lib/emails/templates/appointment-reminder";
 import { sendEmail } from "@/lib/resend/client";
 
 export async function GET(request: Request) {
@@ -20,10 +21,12 @@ export async function GET(request: Request) {
       appointment: appointments,
       shop: shops,
       serviceName: services.name,
+      staffName: shopStaff.displayName,
     })
     .from(appointments)
     .innerJoin(shops, eq(appointments.shopId, shops.id))
     .innerJoin(services, eq(appointments.serviceId, services.id))
+    .innerJoin(shopStaff, eq(appointments.staffMemberId, shopStaff.id))
     .where(
       and(
         eq(appointments.status, "confirmed"),
@@ -35,25 +38,24 @@ export async function GET(request: Request) {
 
   let sent = 0;
 
-  for (const { appointment, shop, serviceName } of upcoming) {
+  for (const { appointment, shop, serviceName, staffName } of upcoming) {
     if (!appointment.clientEmail) continue;
 
-    const when = appointment.startAt.toLocaleString("es-HN", {
-      timeZone: shop.timezone,
-    });
+    const address = shop.formattedAddress ?? shop.addressLine1 ?? null;
 
     await sendEmail({
       to: appointment.clientEmail,
-      subject: `Recordatorio de cita — ${shop.name}`,
-      html: `
-        <div style="font-family:sans-serif;background:#0a0a0a;color:#f5f5f5;padding:24px">
-          <h1 style="color:#c9a227">Tu cita es mañana</h1>
-          <p>Hola ${appointment.clientName},</p>
-          <p>Te recordamos tu cita en <strong>${shop.name}</strong>.</p>
-          <p><strong>Servicio:</strong> ${serviceName}<br/>
-          <strong>Cuándo:</strong> ${when}</p>
-        </div>
-      `,
+      subject: `Recordatorio: tu cita mañana — ${shop.name}`,
+      html: appointmentReminderEmailHtml({
+        clientName: appointment.clientName,
+        shopName: shop.name,
+        shopSlug: shop.slug,
+        serviceName,
+        staffName,
+        startAt: appointment.startAt,
+        timezone: shop.timezone,
+        shopAddress: address,
+      }),
     });
 
     await db

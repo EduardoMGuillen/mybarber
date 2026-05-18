@@ -1,6 +1,7 @@
 import {
   boolean,
   decimal,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -258,6 +259,34 @@ export const staffAvailabilityExceptions = pgTable(
   },
 );
 
+/** Clientes de cada barbería (CRM); se vinculan a las citas. */
+export const clients = pgTable(
+  "clients",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    shopId: uuid("shop_id")
+      .notNull()
+      .references(() => shops.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    phone: text("phone").notNull(),
+    phoneNormalized: text("phone_normalized").notNull(),
+    email: text("email"),
+    emailNormalized: text("email_normalized"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("clients_shop_id_idx").on(t.shopId),
+    index("clients_shop_email_idx").on(t.shopId, t.emailNormalized),
+    index("clients_shop_phone_idx").on(t.shopId, t.phoneNormalized),
+  ],
+);
+
 export const appointments = pgTable(
   "appointments",
   {
@@ -265,6 +294,9 @@ export const appointments = pgTable(
     shopId: uuid("shop_id")
       .notNull()
       .references(() => shops.id, { onDelete: "cascade" }),
+    clientId: uuid("client_id").references(() => clients.id, {
+      onDelete: "set null",
+    }),
     serviceId: uuid("service_id")
       .notNull()
       .references(() => services.id),
@@ -276,6 +308,7 @@ export const appointments = pgTable(
       .default("specific"),
     status: appointmentStatusEnum("status").notNull().default("pending"),
     source: appointmentSourceEnum("source").notNull().default("online"),
+    /** Copia al momento de la cita (histórico). */
     clientName: text("client_name").notNull(),
     clientPhone: text("client_phone").notNull(),
     clientEmail: text("client_email"),

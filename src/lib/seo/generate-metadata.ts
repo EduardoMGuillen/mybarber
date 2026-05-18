@@ -19,7 +19,9 @@ export function generateShopMetadata(shop: ShopRow, appUrl: string): Metadata {
       description,
       url,
       type: "website",
-      images: shop.logoUrl ? [{ url: shop.logoUrl }] : [{ url: `${appUrl}/logotextpng.png` }],
+      images: shop.logoUrl
+        ? [{ url: shop.logoUrl, alt: shop.name }]
+        : [{ url: "/og-image.png", width: 1200, height: 630, alt: shop.name }],
     },
     twitter: {
       card: "summary_large_image",
