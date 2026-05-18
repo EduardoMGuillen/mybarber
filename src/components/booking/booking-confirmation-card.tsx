@@ -23,11 +23,16 @@ export function BookingConfirmationCard({
 }) {
   const ticketRef = useRef<HTMLDivElement>(null);
 
-  const when = formatInTimeZone(
-    new Date(data.startAt),
-    data.timezone,
-    "EEEE d 'de' MMMM yyyy · HH:mm",
-  );
+  let when: string;
+  try {
+    when = formatInTimeZone(
+      new Date(data.startAt),
+      data.timezone || "America/Tegucigalpa",
+      "EEEE d 'de' MMMM yyyy · HH:mm",
+    );
+  } catch {
+    when = new Date(data.startAt).toLocaleString("es-HN");
+  }
 
   const statusLabel =
     data.status === "confirmed" ? "Confirmada" : "Pendiente de confirmación";

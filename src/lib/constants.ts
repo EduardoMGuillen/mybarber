@@ -1,5 +1,7 @@
 export const DEFAULT_TIMEZONE = "America/Tegucigalpa";
 export const TRIAL_DAYS = 7;
+export const SUBSCRIPTION_PRICE_USD = 10;
+export const SUBSCRIPTION_PRICE_LABEL = `$${SUBSCRIPTION_PRICE_USD} USD / mes`;
 export const APP_NAME = "MiBarbería";
 export const NEXUS_GLOBAL_URL = "https://www.nexusglobalsuministros.com/";
 

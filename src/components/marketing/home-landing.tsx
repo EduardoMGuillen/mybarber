@@ -1,5 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import {
+  SUBSCRIPTION_PRICE_LABEL,
+  SUBSCRIPTION_PRICE_USD,
+} from "@/lib/constants";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { MarketingFooterExtras } from "@/components/marketing/marketing-footer-extras";
 import { BRAND_LOGO_SRC } from "@/lib/brand";
@@ -33,7 +37,7 @@ const features = [
   },
   {
     title: "Prueba 7 días",
-    desc: "Empieza gratis. Después $20 USD/mes con PayPal cuando estés listo.",
+    desc: `Empieza gratis. Después ${SUBSCRIPTION_PRICE_LABEL} con PayPal cuando estés listo.`,
     icon: "★",
   },
 ];
@@ -144,7 +148,7 @@ export function HomeLanding() {
               { v: "7 días", l: "Prueba gratis" },
               { v: "Multi", l: "Barberos" },
               { v: "SEO", l: "Landing incluida" },
-              { v: "$20", l: "USD / mes" },
+              { v: `$${SUBSCRIPTION_PRICE_USD}`, l: "USD / mes" },
             ].map((stat, i) => (
               <div key={stat.l} className={`animate-fade-up delay-${i + 1}`}>
                 <p className="text-2xl font-bold text-brand-gold sm:text-3xl">{stat.v}</p>

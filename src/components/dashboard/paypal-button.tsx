@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { startPayPalSubscription } from "@/lib/actions/billing";
+import { SUBSCRIPTION_PRICE_USD } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 
 export function PayPalButton() {
@@ -21,7 +22,9 @@ export function PayPalButton() {
 
   return (
     <Button type="button" className="w-full" disabled={loading} onClick={handleClick}>
-      {loading ? "Redirigiendo…" : "Activar con PayPal — $20/mes"}
+      {loading
+        ? "Redirigiendo…"
+        : `Activar con PayPal — $${SUBSCRIPTION_PRICE_USD}/mes`}
     </Button>
   );
 }

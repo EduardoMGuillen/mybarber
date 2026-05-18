@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { BookingConfirmationCard } from "@/components/booking/booking-confirmation-card";
 import { Button } from "@/components/ui/button";
 import { getPublicBookingConfirmation } from "@/lib/actions/appointments";
@@ -13,9 +12,14 @@ export default async function ReservaExitoPage({ params, searchParams }: Props) 
   const { slug } = await params;
   const { id } = await searchParams;
 
-  const booking = id ? await getPublicBookingConfirmation(slug, id) : null;
-
-  if (id && !booking) notFound();
+  let booking = null;
+  if (id) {
+    try {
+      booking = await getPublicBookingConfirmation(slug, id);
+    } catch (err) {
+      console.error("[reserva-exito] confirmation load failed", err);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-lg px-4 py-12 pb-safe text-center">

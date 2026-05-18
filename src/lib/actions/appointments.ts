@@ -10,7 +10,10 @@ import {
   getSlotsForBooking,
 } from "@/lib/availability/queries";
 import { requireDb } from "@/lib/db";
-import { upsertShopClient } from "@/lib/clients/upsert";
+import {
+  insertAppointmentRow,
+  tryLinkShopClient,
+} from "@/lib/clients/link";
 import { appointments, services, shopStaff } from "@/lib/db/schema";
 import { sendBookingConfirmedEmail, sendBookingEmails } from "@/lib/emails/booking";
 import { sendPushToShopTeam } from "@/lib/push/server";
@@ -130,47 +133,52 @@ export async function createPublicAppointment(
 
   const db = requireDb();
   const clientEmail = data.clientEmail.trim().toLowerCase();
-  const clientId = await upsertShopClient(db, shop.id, {
+  const clientId = await tryLinkShopClient(db, shop.id, {
     name: data.clientName,
     phone: data.clientPhone,
     email: clientEmail,
   });
 
-  const [appointment] = await db
-    .insert(appointments)
-    .values({
-      shopId: shop.id,
-      clientId,
-      serviceId: data.serviceId,
-      staffMemberId,
-      staffPreference: data.preference,
-      status: "pending",
-      source: "online",
-      clientName: data.clientName.trim(),
-      clientPhone: data.clientPhone.trim(),
-      clientEmail,
-      startAt,
-      endAt,
-    })
-    .returning();
+  const appointment = await insertAppointmentRow(db, {
+    shopId: shop.id,
+    ...(clientId ? { clientId } : {}),
+    serviceId: data.serviceId,
+    staffMemberId,
+    staffPreference: data.preference,
+    status: "pending",
+    source: "online",
+    clientName: data.clientName.trim(),
+    clientPhone: data.clientPhone.trim(),
+    clientEmail,
+    startAt,
+    endAt,
+  });
 
   const staff = ctx.staff.find((s) => s.id === staffMemberId);
-  await sendBookingEmails({
-    shop,
-    appointment: appointment!,
-    staffName: staff?.displayName ?? "Barbero",
-    serviceName: service.name,
-  });
+  try {
+    await sendBookingEmails({
+      shop,
+      appointment,
+      staffName: staff?.displayName ?? "Barbero",
+      serviceName: service.name,
+    });
+  } catch (err) {
+    console.error("[booking] email failed", err);
+  }
 
-  await sendPushToShopTeam(shop.id, shop.ownerUserId, {
-    title: "Nueva reserva",
-    body: `${data.clientName} — ${service.name}`,
-    url: "/dashboard/reservas",
-  });
+  try {
+    await sendPushToShopTeam(shop.id, shop.ownerUserId, {
+      title: "Nueva reserva",
+      body: `${data.clientName} — ${service.name}`,
+      url: "/dashboard/reservas",
+    });
+  } catch (err) {
+    console.error("[booking] push failed", err);
+  }
 
   revalidatePath(`/${shop.slug}`);
   revalidatePath("/dashboard/reservas");
-  return { id: appointment!.id };
+  return { id: appointment.id };
 }
 
 export async function getPublicBookingConfirmation(slug: string, appointmentId: string) {
@@ -267,38 +275,35 @@ export async function createManualAppointment(
   }
 
   const clientEmail = data.clientEmail?.trim().toLowerCase() || null;
-  const clientId = await upsertShopClient(db, shop.id, {
+  const clientId = await tryLinkShopClient(db, shop.id, {
     name: data.clientName,
     phone: data.clientPhone,
     email: clientEmail,
   });
 
-  const [appointment] = await db
-    .insert(appointments)
-    .values({
-      shopId: shop.id,
-      clientId,
-      serviceId: data.serviceId,
-      staffMemberId: data.staffMemberId,
-      staffPreference: "specific",
-      status: data.status,
-      source: "manual",
-      clientName: data.clientName.trim(),
-      clientPhone: data.clientPhone.trim(),
-      clientEmail,
-      notes: data.notes || null,
-      startAt,
-      endAt,
-      approvedAt: data.status === "confirmed" ? new Date() : null,
-      approvedByUserId:
-        data.status === "confirmed" ? session.user.id : null,
-    })
-    .returning();
+  const appointment = await insertAppointmentRow(db, {
+    shopId: shop.id,
+    ...(clientId ? { clientId } : {}),
+    serviceId: data.serviceId,
+    staffMemberId: data.staffMemberId,
+    staffPreference: "specific",
+    status: data.status,
+    source: "manual",
+    clientName: data.clientName.trim(),
+    clientPhone: data.clientPhone.trim(),
+    clientEmail,
+    notes: data.notes || null,
+    startAt,
+    endAt,
+    approvedAt: data.status === "confirmed" ? new Date() : null,
+    approvedByUserId:
+      data.status === "confirmed" ? session.user.id : null,
+  });
 
   revalidatePath("/dashboard/reservas");
   revalidatePath("/dashboard/calendario");
   revalidatePath(`/${shop.slug}`);
-  return { id: appointment!.id };
+  return { id: appointment.id };
 }
 
 export async function approveAppointment(appointmentId: string) {

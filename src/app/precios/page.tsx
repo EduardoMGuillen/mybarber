@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
+import { SUBSCRIPTION_PRICE_LABEL } from "@/lib/constants";
 
 export const metadata = { title: "Precios" };
 
@@ -11,7 +12,7 @@ export default function PreciosPage() {
         <BrandLogo href="/" />
       </header>
       <main className="mx-auto max-w-lg flex-1 px-4 py-16 text-center">
-        <h1 className="text-3xl font-bold">$20 USD / mes</h1>
+        <h1 className="text-3xl font-bold">{SUBSCRIPTION_PRICE_LABEL}</h1>
         <p className="mt-4 text-brand-text-muted">
           7 días de prueba gratis. Landing con SEO, reservas multi-barbero y panel
           PWA.

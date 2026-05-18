@@ -4,7 +4,7 @@ import { differenceInCalendarDays } from "date-fns";
 import { auth } from "@/lib/auth";
 import { getShopForUser } from "@/lib/tenant";
 import { PayPalButton } from "@/components/dashboard/paypal-button";
-import { TRIAL_DAYS } from "@/lib/constants";
+import { SUBSCRIPTION_PRICE_LABEL, TRIAL_DAYS } from "@/lib/constants";
 
 export const metadata = { title: "Facturación" };
 
@@ -70,7 +70,7 @@ export default async function FacturacionPage() {
       </div>
 
       <div className="rounded-xl border border-white/10 bg-brand-surface p-6 space-y-4">
-        <h2 className="font-semibold">$20 USD / mes</h2>
+        <h2 className="font-semibold">{SUBSCRIPTION_PRICE_LABEL}</h2>
         <p className="text-sm text-brand-text-muted">
           Suscripción mensual segura con PayPal.
         </p>
