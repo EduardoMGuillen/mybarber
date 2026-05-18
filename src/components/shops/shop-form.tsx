@@ -60,7 +60,7 @@ export function ShopForm({
     addressLine1: initial?.addressLine1 ?? "",
     addressLine2: initial?.addressLine2 ?? "",
     city: initial?.city ?? "",
-    state: initial?.state ?? "Francisco Morazán",
+    state: initial?.state ?? "",
     country: initial?.country ?? "HN",
     postalCode: initial?.postalCode ?? "",
     formattedAddress: initial?.formattedAddress ?? "",

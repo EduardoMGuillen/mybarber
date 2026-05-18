@@ -104,6 +104,7 @@ export function LocationPicker({ form, onUpdate }: Props) {
             value={form.state}
             onChange={(e) => onUpdate("state", e.target.value)}
             required
+            placeholder="Ej. Francisco Morazán"
           />
         </div>
       </div>
