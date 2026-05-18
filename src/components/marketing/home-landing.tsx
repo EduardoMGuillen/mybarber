@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { BRAND_LOGO_SRC } from "@/lib/brand";
 import { Button } from "@/components/ui/button";
 
 const features = [
@@ -123,11 +124,11 @@ export function HomeLanding() {
                 </div>
                 <div className="mt-6 flex justify-center">
                   <Image
-                    src="/brand/mibarberia-logo.png"
+                    src={BRAND_LOGO_SRC}
                     alt="MiBarbería"
-                    width={120}
-                    height={120}
-                    className="opacity-90"
+                    width={160}
+                    height={160}
+                    className="mx-auto h-32 w-32 object-contain opacity-90"
                   />
                 </div>
               </div>

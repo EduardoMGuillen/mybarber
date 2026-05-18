@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PasswordField } from "@/components/auth/password-field";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { confirmPasswordReset } from "@/lib/actions/password-reset";
 
 export function ResetPasswordForm({ token }: { token: string }) {
@@ -34,31 +33,25 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="password">Nueva contraseña</Label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="new-password"
-          minLength={8}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <p className="text-xs text-brand-text-muted">
-          Mínimo 8 caracteres, una mayúscula y un número.
-        </p>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="confirm">Confirmar</Label>
-        <Input
-          id="confirm"
-          type="password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          required
-        />
-      </div>
+      <PasswordField
+        id="password"
+        label="Nueva contraseña"
+        autoComplete="new-password"
+        value={password}
+        onChange={setPassword}
+        required
+        minLength={8}
+        showStrength
+      />
+      <PasswordField
+        id="confirm"
+        label="Confirmar contraseña"
+        autoComplete="new-password"
+        value={confirm}
+        onChange={setConfirm}
+        required
+        minLength={8}
+      />
       {error && <p className="text-sm text-red-400">{error}</p>}
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? "Guardando…" : "Restablecer"}

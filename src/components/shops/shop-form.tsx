@@ -131,7 +131,18 @@ export function ShopForm({
             </div>
           </div>
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="description">Descripción (mín. 80 caracteres, para SEO)</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="description">Descripción (mín. 80 caracteres, para SEO)</Label>
+              <span
+                className={`text-xs tabular-nums ${
+                  form.description.length >= 80
+                    ? "text-green-400"
+                    : "text-brand-text-muted"
+                }`}
+              >
+                {form.description.length}/80
+              </span>
+            </div>
             <textarea
               id="description"
               className="flex min-h-[100px] w-full rounded-lg border border-white/10 bg-brand-surface px-3 py-2 text-sm"

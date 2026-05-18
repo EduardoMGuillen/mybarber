@@ -6,34 +6,66 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { requireDb } from "@/lib/db";
 import { services } from "@/lib/db/schema";
-import { getShopForUser } from "@/lib/tenant";
+import { getShopForUser, requireShopAccess } from "@/lib/tenant";
 
 const serviceSchema = z.object({
-  name: z.string().min(2),
-  durationMinutes: z.coerce.number().min(15).max(240),
+  name: z.string().min(2, "Nombre del servicio muy corto"),
+  durationMinutes: z.coerce
+    .number()
+    .min(15, "Mínimo 15 minutos")
+    .max(240, "Máximo 240 minutos"),
   priceDisplay: z.string().optional(),
 });
 
-export async function addService(input: z.infer<typeof serviceSchema>) {
+export type ServiceActionResult = { ok: true } | { ok: false; error: string };
+
+export async function addService(
+  input: unknown,
+  shopId?: string,
+): Promise<ServiceActionResult> {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("No autenticado");
+  if (!session?.user?.id) {
+    return { ok: false, error: "No autenticado" };
+  }
 
-  const shop = await getShopForUser(session.user.id, session.user.role ?? "owner");
-  if (!shop) throw new Error("Sin barbería");
+  const parsed = serviceSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Datos del servicio inválidos",
+    };
+  }
 
-  const data = serviceSchema.parse(input);
-  const db = requireDb();
+  const data = parsed.data;
+  const role = session.user.role ?? "owner";
 
-  await db.insert(services).values({
-    shopId: shop.id,
-    name: data.name,
-    durationMinutes: data.durationMinutes,
-    priceDisplay: data.priceDisplay || null,
-  });
+  try {
+    const shop = shopId
+      ? await requireShopAccess(session.user.id, role, shopId)
+      : await getShopForUser(session.user.id, role);
 
-  revalidatePath("/dashboard/configuracion/servicios");
-  revalidatePath(`/${shop.slug}`);
-  return { ok: true };
+    if (!shop) {
+      return { ok: false, error: "Sin barbería" };
+    }
+
+    const db = requireDb();
+    await db.insert(services).values({
+      shopId: shop.id,
+      name: data.name,
+      durationMinutes: data.durationMinutes,
+      priceDisplay: data.priceDisplay || null,
+    });
+
+    revalidatePath("/dashboard/configuracion/servicios");
+    revalidatePath(`/${shop.slug}`);
+    return { ok: true };
+  } catch (err) {
+    console.error("[addService]", err);
+    return {
+      ok: false,
+      error: "No se pudo agregar el servicio. Inténtalo de nuevo.",
+    };
+  }
 }
 
 export async function listServicesForShop(shopId: string) {

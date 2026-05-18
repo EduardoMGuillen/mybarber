@@ -66,12 +66,23 @@ export function OnboardingClient() {
       <ShopForm
         submitLabel="Finalizar y abrir panel"
         onSubmit={async (data) => {
-          await completeOnboarding(data);
-          await addService({
-            name: serviceName,
-            durationMinutes: Number(durationMinutes),
-            priceDisplay: priceDisplay || undefined,
-          });
+          const shopResult = await completeOnboarding(data);
+          if (!shopResult.ok) {
+            throw new Error(shopResult.error);
+          }
+
+          const serviceResult = await addService(
+            {
+              name: serviceName,
+              durationMinutes: Number(durationMinutes),
+              priceDisplay: priceDisplay || undefined,
+            },
+            shopResult.shopId,
+          );
+          if (!serviceResult.ok) {
+            throw new Error(serviceResult.error);
+          }
+
           router.push("/dashboard");
           router.refresh();
         }}

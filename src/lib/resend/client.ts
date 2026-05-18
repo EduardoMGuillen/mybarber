@@ -28,6 +28,9 @@ export async function sendEmail({
   }
 
   const { data, error } = await client.emails.send({ from, to, subject, html });
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("[resend]", { to, from, message: error.message });
+    throw new Error(error.message);
+  }
   return data;
 }

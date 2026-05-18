@@ -23,8 +23,15 @@ export async function enforceRateLimit(
   key: string,
 ): Promise<void> {
   if (!limiter) return;
-  const { success } = await limiter.limit(key);
-  if (!success) {
-    throw new Error("Demasiados intentos. Espera un momento e inténtalo de nuevo.");
+  try {
+    const { success } = await limiter.limit(key);
+    if (!success) {
+      throw new Error("Demasiados intentos. Espera un momento e inténtalo de nuevo.");
+    }
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("Demasiados intentos")) {
+      throw err;
+    }
+    console.warn("[ratelimit] skipped:", err);
   }
 }

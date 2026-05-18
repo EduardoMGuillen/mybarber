@@ -18,10 +18,33 @@ function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
-export async function requestPasswordReset(email: string) {
-  await enforceRateLimit(resetLimiter, "password-reset");
+export type PasswordResetRequestResult =
+  | { status: "success" }
+  | { status: "rate_limited"; message: string }
+  | { status: "delivery_failed" };
+
+export async function requestPasswordReset(
+  email: string,
+): Promise<PasswordResetRequestResult> {
   const normalized = email.trim().toLowerCase();
-  if (!normalized) return { ok: true };
+  if (!normalized) return { status: "success" };
+
+  const rateKey = createHash("sha256")
+    .update(`password-reset:${normalized}`)
+    .digest("hex")
+    .slice(0, 24);
+
+  try {
+    await enforceRateLimit(resetLimiter, rateKey);
+  } catch (err) {
+    if (
+      err instanceof Error &&
+      err.message.includes("Demasiados intentos")
+    ) {
+      return { status: "rate_limited", message: err.message };
+    }
+    throw err;
+  }
 
   const db = requireDb();
   const [user] = await db
@@ -30,58 +53,69 @@ export async function requestPasswordReset(email: string) {
     .where(eq(users.email, normalized))
     .limit(1);
 
-  if (!user) return { ok: true };
+  if (!user) return { status: "success" };
 
-  if (!user.passwordHash) {
-    return { ok: true, googleOnly: true };
-  }
-
-  await db
-    .update(passwordResetTokens)
-    .set({ usedAt: new Date() })
-    .where(
-      and(
-        eq(passwordResetTokens.userId, user.id),
-        isNull(passwordResetTokens.usedAt),
-      ),
-    );
-
-  const token = randomBytes(TOKEN_BYTES).toString("hex");
-  const tokenHash = hashToken(token);
-  const expiresAt = new Date();
-  expiresAt.setHours(expiresAt.getHours() + EXPIRY_HOURS);
-
-  await db.insert(passwordResetTokens).values({
-    userId: user.id,
-    tokenHash,
-    expiresAt,
-  });
-
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const link = `${appUrl}/restablecer-contrasena/${token}`;
+  const isNewPassword = !user.passwordHash;
 
   try {
+    await db
+      .update(passwordResetTokens)
+      .set({ usedAt: new Date() })
+      .where(
+        and(
+          eq(passwordResetTokens.userId, user.id),
+          isNull(passwordResetTokens.usedAt),
+        ),
+      );
+
+    const token = randomBytes(TOKEN_BYTES).toString("hex");
+    const tokenHash = hashToken(token);
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + EXPIRY_HOURS);
+
+    await db.insert(passwordResetTokens).values({
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+    });
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const link = `${appUrl}/restablecer-contrasena/${token}`;
+
+    const subject = isNewPassword
+      ? "Crear contraseña — MiBarbería"
+      : "Restablecer contraseña — MiBarbería";
+
+    const intro = isNewPassword
+      ? "Recibimos una solicitud para crear una contraseña en tu cuenta (entras con Google). El enlace expira en"
+      : "Recibimos una solicitud para restablecer tu contraseña. El enlace expira en";
+
+    const cta = isNewPassword ? "Crear contraseña" : "Restablecer contraseña";
+
     await sendEmail({
       to: normalized,
-      subject: "Restablecer contraseña — MiBarbería",
+      subject,
       html: `
       <div style="font-family:sans-serif;background:#0a0a0a;color:#f5f5f5;padding:24px">
-        <h1 style="color:#c9a227">Restablecer contraseña</h1>
+        <h1 style="color:#c9a227">${cta}</h1>
         <p>Hola${user.name ? ` ${user.name}` : ""},</p>
-        <p>Recibimos una solicitud para restablecer tu contraseña. El enlace expira en ${EXPIRY_HOURS} horas.</p>
-        <p><a href="${link}" style="color:#c9a227;font-weight:bold">Restablecer contraseña</a></p>
+        <p>${intro} ${EXPIRY_HOURS} horas.</p>
+        <p><a href="${link}" style="color:#c9a227;font-weight:bold">${cta}</a></p>
         <p style="word-break:break-all;font-size:12px;color:#a3a3a3">${link}</p>
         <p style="color:#a3a3a3;font-size:12px">Si no solicitaste esto, ignora este correo.</p>
       </div>
     `,
     });
-  } catch {
-    throw new Error(
-      "No pudimos enviar el correo. Revisa la configuración de correo o inténtalo más tarde.",
-    );
-  }
 
-  return { ok: true };
+    if (!process.env.RESEND_API_KEY) {
+      console.log("[password-reset:dev] link for", normalized, link);
+    }
+
+    return { status: "success" };
+  } catch (err) {
+    console.error("[password-reset] failed for", normalized, err);
+    return { status: "delivery_failed" };
+  }
 }
 
 export async function confirmPasswordReset(token: string, password: string) {

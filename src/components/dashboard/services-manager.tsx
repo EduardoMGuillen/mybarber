@@ -42,11 +42,14 @@ export function ServicesManager({ services }: { services: Service[] }) {
         onSubmit={(e) => {
           e.preventDefault();
           run(async () => {
-            await addService({
+            const result = await addService({
               name,
               durationMinutes: Number(duration),
               priceDisplay: price || undefined,
             });
+            if (!result.ok) {
+              throw new Error(result.error);
+            }
             setName("");
             setPrice("");
           });

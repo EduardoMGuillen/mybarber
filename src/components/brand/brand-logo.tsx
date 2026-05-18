@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { BRAND_LOGO_SRC } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 type BrandLogoProps = {
@@ -9,16 +10,16 @@ type BrandLogoProps = {
 };
 
 const sizes = {
-  sm: { width: 120, height: 40, className: "h-8 w-auto" },
-  md: { width: 160, height: 53, className: "h-10 w-auto" },
-  lg: { width: 220, height: 73, className: "h-14 w-auto" },
+  sm: { width: 32, height: 32, className: "h-8 w-8 object-contain" },
+  md: { width: 40, height: 40, className: "h-10 w-10 object-contain" },
+  lg: { width: 56, height: 56, className: "h-14 w-14 object-contain" },
 };
 
 export function BrandLogo({ className, href = "/", size = "md" }: BrandLogoProps) {
   const s = sizes[size];
   const img = (
     <Image
-      src="/brand/mibarberia-logo.png"
+      src={BRAND_LOGO_SRC}
       alt="MiBarbería"
       width={s.width}
       height={s.height}

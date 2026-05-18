@@ -28,10 +28,6 @@ export default function LoginPage() {
           <LoginForm />
         </Suspense>
         <p className="text-center text-sm text-brand-text-muted">
-          <Link href="/olvide-contrasena" className="text-brand-gold hover:underline">
-            Olvidé mi contraseña
-          </Link>
-          <span className="mx-2 text-white/20">·</span>
           ¿No tienes cuenta?{" "}
           <Link href="/registro" className="text-brand-gold hover:underline">
             Regístrate

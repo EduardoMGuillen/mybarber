@@ -19,7 +19,7 @@ export function generateShopMetadata(shop: ShopRow, appUrl: string): Metadata {
       description,
       url,
       type: "website",
-      images: shop.logoUrl ? [{ url: shop.logoUrl }] : [{ url: `${appUrl}/brand/mibarberia-logo.png` }],
+      images: shop.logoUrl ? [{ url: shop.logoUrl }] : [{ url: `${appUrl}/logotextpng.png` }],
     },
     twitter: {
       card: "summary_large_image",

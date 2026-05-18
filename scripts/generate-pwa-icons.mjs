@@ -2,7 +2,7 @@ import sharp from "sharp";
 import { join } from "node:path";
 
 const root = process.cwd();
-const source = join(root, "public/brand/mibarberia-logo.png");
+const source = join(root, "public/logotextpng.png");
 const outDir = join(root, "public/icons");
 
 await sharp(source)

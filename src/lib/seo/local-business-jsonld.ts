@@ -37,7 +37,7 @@ export function buildLocalBusinessJsonLd(
     "@type": "HairSalon",
     name: shop.name,
     description: shop.description,
-    image: shop.logoUrl ?? `${appUrl}/brand/mibarberia-logo.png`,
+    image: shop.logoUrl ?? `${appUrl}/logotextpng.png`,
     telephone: shop.phone,
     url: `${appUrl}/${shop.slug}`,
     address: {

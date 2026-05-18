@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
+import { PasswordField } from "@/components/auth/password-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,26 +25,29 @@ export default function RegistroPage() {
     setLoading(true);
     setError(null);
 
-    try {
-      await registerOwner({ name, email, password });
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
+    const registered = await registerOwner({ name, email, password });
 
-      if (result?.error) {
-        setError("Cuenta creada. Inicia sesión manualmente.");
-        return;
-      }
-
-      router.push("/dashboard/configuracion/perfil");
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al registrar");
-    } finally {
+    if (!registered.ok) {
+      setError(registered.error);
       setLoading(false);
+      return;
     }
+
+    const result = await signIn("credentials", {
+      email: email.trim().toLowerCase(),
+      password,
+      redirect: false,
+    });
+
+    setLoading(false);
+
+    if (result?.error) {
+      setError("Cuenta creada. Inicia sesión manualmente.");
+      return;
+    }
+
+    router.push("/dashboard/configuracion/perfil");
+    router.refresh();
   }
 
   return (
@@ -97,24 +101,27 @@ export default function RegistroPage() {
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-            />
-            <p className="text-xs text-brand-text-muted">
-              Mínimo 8 caracteres, una mayúscula y un número.
-            </p>
-          </div>
+          <PasswordField
+            id="password"
+            label="Contraseña"
+            autoComplete="new-password"
+            value={password}
+            onChange={setPassword}
+            required
+            minLength={8}
+            showStrength
+          />
           {error && (
             <p className="text-sm text-red-400" role="alert">
               {error}
+              {error.includes("ya está registrado") && (
+                <>
+                  {" "}
+                  <Link href="/login" className="text-brand-gold hover:underline">
+                    Iniciar sesión
+                  </Link>
+                </>
+              )}
             </p>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
